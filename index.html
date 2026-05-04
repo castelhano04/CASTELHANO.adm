@@ -181,6 +181,11 @@ function render(){
 
  let totalEstoque=0,totalVendido=0,totalInvestido=0;
 
+ // investimento total (somado 1x por produto)
+ produtos.forEach(p=>{
+   
+ });
+
  produtos.forEach(p=>{
  if(filtro !== 'Todos' && p.categoria !== filtro) return;
 
@@ -192,7 +197,7 @@ function render(){
 
  totalVendido += dados.vendido * p.valor;
  totalEstoque += restante * p.valor;
- totalInvestido += p.custo;
+ 
 
  tamanhosHTML+=`<p>${t}: ${restante} restante <button onclick="vender('${p.id}','${t}')">Vender</button></p>`;
  }
