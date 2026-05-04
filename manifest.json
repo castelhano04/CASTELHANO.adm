@@ -1,6 +1,7 @@
 {
-  "name": "Meu Estoque",
+  "name": "Controle de Estoque",
   "short_name": "Estoque",
+  "description": "Sistema pessoal para controle de estoque com fotos, vendas e cálculo automático.",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#0f172a",
@@ -9,6 +10,18 @@
     {
       "src": "https://cdn-icons-png.flaticon.com/512/3081/3081559.png",
       "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://cdn-icons-png.flaticon.com/512/3081/3081559.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "https://via.placeholder.com/540x720.png?text=Estoque+App",
+      "sizes": "540x720",
       "type": "image/png"
     }
   ]
