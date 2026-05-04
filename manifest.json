@@ -1,9 +1,9 @@
 {
-  "id": "/",
   "name": "Controle de Estoque",
   "short_name": "Estoque",
   "description": "Sistema pessoal de controle de estoque com vendas e fotos.",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#0f172a",
@@ -18,6 +18,12 @@
       "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png"
+    },
+    {
+      "src": "/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
     }
   ]
 }
