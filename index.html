@@ -181,12 +181,11 @@ function render(){
 
  let totalEstoque=0,totalVendido=0,totalInvestido=0;
 
- // investimento total (somado 1x por produto)
- produtos.forEach(p=>{
-   
- });
+ 
 
  produtos.forEach(p=>{
+
+ totalInvestido += p.custo;
  if(filtro !== 'Todos' && p.categoria !== filtro) return;
 
  let tamanhosHTML='';
