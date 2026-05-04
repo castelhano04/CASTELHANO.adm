@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estoque Pessoal</title>
+
+<style>
+body{font-family:Arial;background:#0f172a;color:white;margin:0;padding:10px}
+.container{max-width:520px;margin:auto}
+input,textarea,select{width:100%;padding:8px;margin:5px 0;border-radius:6px;border:none}
+button{padding:10px;margin:5px 0;width:100%;border:none;border-radius:6px;background:#22c55e;color:white;font-weight:bold}
+.card{background:#1e293b;padding:10px;border-radius:10px;margin-top:10px}
+img{width:100%;border-radius:10px}
+.red{background:#ef4444}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+</style>
+</head>
+<body>
+<div class="container">
+
+<div id="login">
+<h2>Login</h2>
+<input type="password" id="senha" placeholder="Digite a senha">
+<button onclick="logar()">Entrar</button>
+</div>
+
+<div id="app" style="display:none">
+<h2>Meu Estoque</h2>
+
+<div class="grid">
+<div class="card">Estoque: R$ <span id="totalEstoque">0</span></div>
+<div class="card">Vendido: R$ <span id="totalVendido">0</span></div>
+<div class="card">Investido: R$ <span id="totalInvestido">0</span></div>
+<div class="card">Lucro: R$ <span id="lucro">0</span></div>
+</div>
+
+<input type="file" id="foto">
+<input type="text" id="nome" placeholder="Nome">
+<textarea id="desc" placeholder="Descrição"></textarea>
+<select id="categoria">
+<option>Europeu</option>
+<option>Seleções</option>
+<option>Brasil</option>
+<option>Outros</option>
+</select>
+<input type="number" id="valor" placeholder="Venda">
+<input type="number" id="custo" placeholder="Compra">
+<button onclick="addProduto()">Adicionar</button>
+
+<select id="filtro" onchange="render()">
+<option value="Todos">Todos</option>
+<option value="Europeu">Europeu</option>
+<option value="Seleções">Seleções</option>
+<option value="Brasil">Brasil</option>
+<option value="Outros">Outros</option>
+</select>
+
+<div id="lista"></div>
+</div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyD4TfY6Iwrju_aaG1vpN-q1Z9LyiDBeQvQ",
+  authDomain: "estoque-app-13f1d.firebaseapp.com",
+  projectId: "estoque-app-13f1d",
+  storageBucket: "estoque-app-13f1d.appspot.com",
+  messagingSenderId: "193095930583",
+  appId: "1:193095930583:web:88587ee9f4e10076619692"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const storage = getStorage(app);
+
+let produtos = [];
+
+window.logar = function(){
+ if(document.getElementById('senha').value==='161004'){
+ document.getElementById('login').style.display='none';
+ document.getElementById('app').style.display='block';
+ carregar();
+ }else alert('Senha errada');
+}
+
+async function carregar(){
+ try{
+ const querySnapshot = await getDocs(collection(db, "produtos"));
+ produtos=[];
+ querySnapshot.forEach((docu)=>{
+ produtos.push({id:docu.id,...docu.data()});
+ });
+ render();
+ }catch(e){
+ console.error('Erro Firestore:', e);
+ alert('Erro ao carregar dados. Se estiver abrindo direto do arquivo, use navegador com servidor (ex: Live Server).');
+ }
+}
+
+window.addProduto = async function(){
+ const file = document.getElementById('foto').files[0];
+ const nome = document.getElementById('nome').value;
+ const desc = document.getElementById('desc').value;
+ const categoria = document.getElementById('categoria').value;
+ const valor = Number(document.getElementById('valor').value);
+ const custo = Number(document.getElementById('custo').value);
+
+ if(!file || !nome || !valor) return alert('Preencha tudo');
+
+ const tempId = 'temp'+Date.now();
+ const preview = URL.createObjectURL(file);
+
+ produtos.unshift({id:tempId,nome,desc,categoria,valor,custo,img:preview,vendido:false});
+ render();
+
+ try{
+ let storageRef = ref(storage, 'fotos/'+Date.now());
+ await uploadBytes(storageRef,file);
+ let url = await getDownloadURL(storageRef);
+
+ const docRef = await addDoc(collection(db,"produtos"),{
+ nome,desc,categoria,valor,custo,img:url,vendido:false
+ });
+
+ produtos = produtos.map(p=> p.id===tempId ? {...p,id:docRef.id,img:url} : p);
+ render();
+
+ }catch(e){
+ console.error('Erro salvar:', e);
+ alert('Erro ao salvar no banco. Verifique regras do Firebase e se está usando servidor (Live Server).');
+ }
+}
+
+window.vender = async function(id){
+ if(id.startsWith('temp')) return alert('Aguarde salvar primeiro');
+ await updateDoc(doc(db,"produtos",id),{vendido:true});
+ carregar();
+}
+
+window.excluir = async function(id){
+ if(id.startsWith('temp')){
+ produtos = produtos.filter(p=>p.id!==id);
+ return render();
+ }
+ await deleteDoc(doc(db,"produtos",id));
+ carregar();
+}
+
+function render(){
+ let filtro = document.getElementById('filtro')?.value || 'Todos';
+ let lista = document.getElementById('lista');
+ lista.innerHTML='';
+
+ let totalEstoque=0,totalVendido=0,totalInvestido=0;
+
+ produtos.forEach(p=>{
+ if(filtro !== 'Todos' && p.categoria !== filtro) return;
+
+ if(p.vendido) totalVendido+=p.valor;
+ else totalEstoque+=p.valor;
+
+ totalInvestido+=p.custo;
+
+ lista.innerHTML+=`
+ <div class="card">
+ <img src="${p.img}">
+ <h3>${p.nome}</h3>
+ <p>${p.desc}</p>
+ <p>${p.categoria}</p>
+ <p>Venda: R$ ${p.valor}</p>
+ <button onclick="vender('${p.id}')">Vendido</button>
+ <button class="red" onclick="excluir('${p.id}')">Excluir</button>
+ </div>`;
+ });
+
+ document.getElementById('totalEstoque').innerText = totalEstoque.toFixed(2);
+ document.getElementById('totalVendido').innerText = totalVendido.toFixed(2);
+ document.getElementById('totalInvestido').innerText = totalInvestido.toFixed(2);
+ document.getElementById('lucro').innerText = (totalVendido - totalInvestido).toFixed(2);
+}
+</script>
+</body>
+</html>
