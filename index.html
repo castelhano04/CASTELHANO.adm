@@ -118,12 +118,21 @@ window.addProduto = async function(){
  const categoria = document.getElementById('categoria').value;
  const valor = Number(document.getElementById('valor').value);
  const tamanhosStr = document.getElementById('tamanhos').value;
- const custo = Number(document.getElementById('custo').value);
+ const custoUnitario = Number(document.getElementById('custo').value);
 
- if(!file || !nome || !valor || !tamanhosStr) return alert('Preencha tudo');
+ if(!file || !nome || !valor || !tamanhosStr || !custoUnitario) return alert('Preencha tudo');
 
  const base64 = await converterBase64(file);
  const tamanhos = parseTamanhos(tamanhosStr);
+
+ // calcular quantidade total
+ let quantidadeTotal = 0;
+ for(let t in tamanhos){
+   quantidadeTotal += tamanhos[t].total;
+ }
+
+ // custo total automático
+ const custo = custoUnitario * quantidadeTotal;
 
  const tempId = 'temp'+Date.now();
 
