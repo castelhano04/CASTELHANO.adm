@@ -8,14 +8,14 @@
 <style>
 body{
   font-family:Arial;
-  background:#f1f5f9;
+  background:#f4f6f9;
   margin:0;
   padding:15px;
   color:#111;
 }
 
 .container{
-  max-width:1300px;
+  max-width:1200px;
   margin:auto;
 }
 
@@ -60,7 +60,7 @@ button{
 /* GRID LOJA */
 .grid-produtos{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
+  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
   gap:15px;
   margin-top:20px;
 }
@@ -71,69 +71,42 @@ button{
   border-radius:12px;
   overflow:hidden;
   box-shadow:0 3px 10px rgba(0,0,0,0.1);
-  transition:0.2s;
 }
 
-.card-produto:hover{
-  transform:translateY(-3px);
-}
-
-/* IMAGEM */
 .card-produto img{
   width:100%;
-  height:200px;
+  height:180px;
   object-fit:cover;
 }
 
-/* CONTEUDO */
 .produto-info{
   padding:10px;
 }
 
-.nome{
-  font-size:14px;
-  font-weight:bold;
-}
+.nome{font-size:14px;font-weight:bold}
+.desc{font-size:12px;color:#555;margin:4px 0}
+.preco{font-size:18px;color:#16a34a;font-weight:bold}
 
-.desc{
-  font-size:12px;
-  color:#555;
-  margin:4px 0;
-}
-
-.preco{
-  font-size:18px;
-  color:#16a34a;
-  font-weight:bold;
-}
-
-/* TAMANHOS */
 .tam{
   display:flex;
   justify-content:space-between;
   font-size:12px;
-  margin:3px 0;
 }
 
-/* BOTÕES CARD */
 .btns{
   display:flex;
   gap:5px;
   margin-top:8px;
 }
 
-.btns button{
-  flex:1;
-}
+.btns button{flex:1}
 
-/* PAGINAÇÃO */
 .paginacao{
   display:flex;
   justify-content:space-between;
   margin-top:20px;
 }
 
-/* MOBILE */
 @media(max-width:600px){
   .grid-produtos{
     grid-template-columns:repeat(2,1fr);
@@ -196,26 +169,30 @@ button{
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const app = initializeApp({
+const appFirebase = initializeApp({
  apiKey: "AIzaSyD4TfY6Iwrju_aaG1vpN-q1Z9LyiDBeQvQ",
  authDomain: "estoque-app-13f1d.firebaseapp.com",
  projectId: "estoque-app-13f1d",
 });
 
-const db = getFirestore(app);
+const db = getFirestore(appFirebase);
 
 let produtos=[];
 let paginaAtual=1;
 const itensPorPagina=15;
 
+/* LOGIN CORRIGIDO */
 window.logar=function(){
- if(document.getElementById("senha").value==="161004"){
-   login.style.display="none";
-   app.style.display="block";
+ const senhaInput = document.getElementById("senha").value;
+
+ if(senhaInput==="161004"){
+   document.getElementById("login").style.display="none";
+   document.getElementById("app").style.display="block";
    carregar();
  } else alert("Senha errada");
 }
 
+/* CARREGAR */
 async function carregar(){
  const snap=await getDocs(collection(db,"produtos"));
  produtos=[];
@@ -223,6 +200,7 @@ async function carregar(){
  render();
 }
 
+/* BASE64 */
 function base64(file){
  return new Promise(r=>{
  let reader=new FileReader();
@@ -231,8 +209,10 @@ function base64(file){
  });
 }
 
+/* TAMANHOS */
 function parseTam(str){
  let obj={};
+ if(!str) return obj;
  str.split(',').forEach(p=>{
  let [t,q]=p.split(':');
  if(t&&q)obj[t.trim()]={total:+q,vendido:0};
@@ -240,8 +220,12 @@ function parseTam(str){
  return obj;
 }
 
+/* ADD */
 window.addProduto=async()=>{
- let img=await base64(foto.files[0]);
+ let file=foto.files[0];
+ if(!file) return alert("Selecione imagem");
+
+ let img=await base64(file);
  let tam=parseTam(tamanhos.value);
 
  let total=Object.values(tam).reduce((a,b)=>a+b.total,0);
@@ -259,30 +243,40 @@ window.addProduto=async()=>{
  carregar();
 }
 
+/* VENDER */
 window.vender=async(id,t)=>{
  let p=produtos.find(x=>x.id===id);
+ if(!p || !p.tamanhos[t]) return;
+
  if(p.tamanhos[t].vendido>=p.tamanhos[t].total) return;
+
  p.tamanhos[t].vendido++;
  await updateDoc(doc(db,"produtos",id),{tamanhos:p.tamanhos});
  carregar();
 }
 
+/* EXCLUIR */
 window.excluir=async(id)=>{
  await deleteDoc(doc(db,"produtos",id));
  carregar();
 }
 
+/* EDITAR */
 window.editarProduto=async(id)=>{
  let p=produtos.find(x=>x.id===id);
+ if(!p) return;
+
  await updateDoc(doc(db,"produtos",id),{
  nome:prompt("Nome",p.nome),
  desc:prompt("Desc",p.desc),
  valor:+prompt("Valor",p.valor),
  tamanhos:parseTam(prompt("Tam","P:2,M:3"))
  });
+
  carregar();
 }
 
+/* RENDER */
 function render(){
  let lista=document.getElementById("lista");
  let filtro=document.getElementById("filtro").value;
@@ -297,7 +291,10 @@ function render(){
  lista.innerHTML='<div class="grid-produtos">';
 
  itens.forEach(p=>{
+ if(!p.tamanhos) p.tamanhos={UNICO:{total:1,vendido:0}};
+
  let tHTML="";
+
  for(let t in p.tamanhos){
  let d=p.tamanhos[t];
  let rest=d.total-d.vendido;
@@ -314,11 +311,11 @@ function render(){
 
  lista.innerHTML+=`
  <div class="card-produto">
-   <img src="${p.img}">
+   <img src="${p.img || ''}">
    <div class="produto-info">
-     <div class="nome">${p.nome}</div>
-     <div class="desc">${p.desc}</div>
-     <div class="preco">R$ ${p.valor}</div>
+     <div class="nome">${p.nome || ''}</div>
+     <div class="desc">${p.desc || ''}</div>
+     <div class="preco">R$ ${p.valor || 0}</div>
      ${tHTML}
      <div class="btns">
        <button class="blue" onclick="editarProduto('${p.id}')">Editar</button>
