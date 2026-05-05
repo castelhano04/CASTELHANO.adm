@@ -3,61 +3,115 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estoque</title>
+<title>Estoque Pro</title>
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#0f172a">
 
 <style>
-body{font-family:Arial;background:#0f172a;color:white;margin:0;padding:10px}
-.container{max-width:900px;margin:auto}
+body{
+font-family:Arial;
+background:#0f172a;
+color:white;
+margin:0;
+padding:10px
+}
+
+.container{max-width:1100px;margin:auto}
+
+h2{text-align:center}
+
+.topo{
+display:grid;
+grid-template-columns:repeat(4,1fr);
+gap:10px;
+margin-bottom:10px
+}
+
+.card-top{
+background:#1e293b;
+padding:10px;
+border-radius:10px;
+text-align:center;
+font-size:14px
+}
 
 input,textarea,select{
-width:100%;padding:8px;margin:5px 0;border-radius:6px;border:none
+width:100%;
+padding:10px;
+margin:5px 0;
+border-radius:8px;
+border:none
 }
 
 button{
-padding:10px;margin:5px 0;border:none;border-radius:6px;
-background:#22c55e;color:white;font-weight:bold;cursor:pointer
+padding:10px;
+border:none;
+border-radius:8px;
+cursor:pointer;
+font-weight:bold
 }
 
-.red{background:#ef4444}
-.blue{background:#3b82f6}
-
-.grid{
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:8px
-}
+.green{background:#22c55e;color:white}
+.red{background:#ef4444;color:white}
+.blue{background:#3b82f6;color:white}
+.gray{background:#334155;color:white}
 
 .grid-produtos{
 display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:10px;
+grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+gap:12px;
+margin-top:10px
 }
 
 .card{
 background:#1e293b;
-padding:10px;
-border-radius:10px;
+border-radius:12px;
+overflow:hidden;
+padding:8px;
+display:flex;
+flex-direction:column;
+gap:5px
 }
 
 .card img{
 width:100%;
-height:150px;
+height:140px;
 object-fit:cover;
-border-radius:8px;
+border-radius:8px
 }
 
-.info{
-font-size:14px;
-margin:5px 0;
+.nome{font-size:15px;font-weight:bold}
+.info{font-size:13px;color:#cbd5f5}
+
+.tamanhos{
+background:#0f172a;
+padding:5px;
+border-radius:8px
+}
+
+.tam{
+display:flex;
+justify-content:space-between;
+align-items:center;
+margin:3px 0
+}
+
+.tam button{
+padding:3px 8px;
+font-size:12px
+}
+
+.actions{
+display:flex;
+gap:5px;
+margin-top:5px
 }
 
 .paginacao{
 display:flex;
 justify-content:space-between;
-margin-top:15px;
+margin-top:15px
 }
 </style>
 </head>
@@ -67,21 +121,22 @@ margin-top:15px;
 
 <div id="login">
 <h2>Login</h2>
-<input type="password" id="senha" placeholder="Digite a senha">
-<button onclick="logar()">Entrar</button>
+<input type="password" id="senha" placeholder="Senha">
+<button class="green" onclick="logar()">Entrar</button>
 </div>
 
 <div id="app" style="display:none">
-<h2>Meu Estoque</h2>
 
-<div class="grid">
-<div class="card">Estoque: R$ <span id="totalEstoque">0</span></div>
-<div class="card">Vendido: R$ <span id="totalVendido">0</span></div>
-<div class="card">Investido: R$ <span id="totalInvestido">0</span></div>
-<div class="card">Lucro: R$ <span id="lucro">0</span></div>
+<h2>Controle de Estoque</h2>
+
+<div class="topo">
+<div class="card-top">Estoque<br>R$ <span id="totalEstoque">0</span></div>
+<div class="card-top">Vendido<br>R$ <span id="totalVendido">0</span></div>
+<div class="card-top">Investido<br>R$ <span id="totalInvestido">0</span></div>
+<div class="card-top">Lucro<br>R$ <span id="lucro">0</span></div>
 </div>
 
-<input type="file" id="foto" accept="image/*">
+<input type="file" id="foto">
 <input type="text" id="nome" placeholder="Nome">
 <textarea id="desc" placeholder="Descrição"></textarea>
 
@@ -92,12 +147,11 @@ margin-top:15px;
 <option>Outros</option>
 </select>
 
-<input type="number" id="valor" placeholder="Valor de venda (unitário)">
-<input type="number" id="custo" placeholder="Custo por peça">
+<input type="number" id="valor" placeholder="Valor venda">
+<input type="number" id="custo" placeholder="Custo unitário">
+<input type="text" id="tamanhos" placeholder="P:2,M:3,G:1">
 
-<input type="text" id="tamanhos" placeholder="Ex: P:2,M:3,G:1">
-
-<button onclick="addProduto()">Adicionar</button>
+<button class="green" onclick="addProduto()">Adicionar</button>
 
 <select id="filtro" onchange="render()">
 <option value="Todos">Todos</option>
@@ -108,6 +162,7 @@ margin-top:15px;
 </select>
 
 <div id="lista"></div>
+
 </div>
 </div>
 
@@ -115,206 +170,171 @@ margin-top:15px;
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyD4TfY6Iwrju_aaG1vpN-q1Z9LyiDBeQvQ",
-  authDomain: "estoque-app-13f1d.firebaseapp.com",
-  projectId: "estoque-app-13f1d",
-};
+const app = initializeApp({
+ apiKey: "AIzaSyD4TfY6Iwrju_aaG1vpN-q1Z9LyiDBeQvQ",
+ authDomain: "estoque-app-13f1d.firebaseapp.com",
+ projectId: "estoque-app-13f1d",
+});
 
-const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
-let produtos = [];
-let paginaAtual = 1;
-const itensPorPagina = 6;
+let produtos=[];
+let pagina=1;
+const porPagina=6;
 
-window.logar = function(){
- if(document.getElementById('senha').value==='161004'){
- document.getElementById('login').style.display='none';
- document.getElementById('app').style.display='block';
+window.logar=()=>{
+ if(senha.value==="161004"){
+ login.style.display="none";
+ app.style.display="block";
  carregar();
- }else alert('Senha errada');
+ }else alert("Senha errada");
 }
 
 async function carregar(){
- const querySnapshot = await getDocs(collection(db, "produtos"));
+ const snap=await getDocs(collection(db,"produtos"));
  produtos=[];
- querySnapshot.forEach((docu)=>{
- produtos.push({id:docu.id,...docu.data()});
- });
+ snap.forEach(d=>produtos.push({id:d.id,...d.data()}));
  render();
 }
 
-function converterBase64(file){
- return new Promise((resolve,reject)=>{
- const reader = new FileReader();
+function base64(file){
+ return new Promise(r=>{
+ let reader=new FileReader();
+ reader.onload=()=>r(reader.result);
  reader.readAsDataURL(file);
- reader.onload = ()=> resolve(reader.result);
- reader.onerror = error => reject(error);
  });
 }
 
-function parseTamanhos(str){
+function parseTam(str){
  let obj={};
- str.split(',').forEach(par=>{
- let [tam,qtd]=par.split(':');
- if(tam && qtd) obj[tam.trim()]={total:Number(qtd),vendido:0};
+ str.split(',').forEach(p=>{
+ let [t,q]=p.split(':');
+ if(t&&q)obj[t.trim()]={total:+q,vendido:0};
  });
  return obj;
 }
 
-window.addProduto = async function(){
- const file = document.getElementById('foto').files[0];
- const nome = document.getElementById('nome').value;
- const desc = document.getElementById('desc').value;
- const categoria = document.getElementById('categoria').value;
- const valor = Number(document.getElementById('valor').value);
- const custoUnitario = Number(document.getElementById('custo').value);
- const tamanhosStr = document.getElementById('tamanhos').value;
+window.addProduto=async()=>{
+ let file=foto.files[0];
+ if(!file) return alert("Selecione imagem");
 
- if(!file || !nome || !valor || !tamanhosStr || !custoUnitario) return alert('Preencha tudo');
+ let img=await base64(file);
+ let tam=parseTam(tamanhos.value);
 
- const base64 = await converterBase64(file);
- const tamanhos = parseTamanhos(tamanhosStr);
-
- let quantidadeTotal = 0;
- for(let t in tamanhos){
-   quantidadeTotal += tamanhos[t].total;
- }
-
- const custo = custoUnitario * quantidadeTotal;
+ let total=Object.values(tam).reduce((a,b)=>a+b.total,0);
+ let custoTotal=custo.value*total;
 
  await addDoc(collection(db,"produtos"),{
- nome,desc,categoria,valor,custo,tamanhos,img:base64
+ nome:nome.value,
+ desc:desc.value,
+ categoria:categoria.value,
+ valor:+valor.value,
+ custo:custoTotal,
+ tamanhos:tam,
+ img
  });
 
  carregar();
 }
 
-window.vender = async function(id,tam){
- let produto = produtos.find(p=>p.id===id);
- let tamanho = produto.tamanhos[tam];
+window.vender=async(id,t)=>{
+ let p=produtos.find(x=>x.id===id);
+ if(p.tamanhos[t].vendido>=p.tamanhos[t].total)return;
 
- if(tamanho.vendido >= tamanho.total){
- alert('Sem estoque');
- return;
- }
-
- tamanho.vendido++;
-
- await updateDoc(doc(db,"produtos",id),{tamanhos:produto.tamanhos});
+ p.tamanhos[t].vendido++;
+ await updateDoc(doc(db,"produtos",id),{tamanhos:p.tamanhos});
  carregar();
 }
 
-window.excluir = async function(id){
+window.remover=async(id)=>{
  await deleteDoc(doc(db,"produtos",id));
  carregar();
 }
 
-window.editarProduto = async function(id){
- let p = produtos.find(x=>x.id===id);
+window.editar=async(id)=>{
+ let p=produtos.find(x=>x.id===id);
 
- let novoNome = prompt("Nome:", p.nome);
- let novaDesc = prompt("Descrição:", p.desc);
- let novoValor = Number(prompt("Valor:", p.valor));
- let novoCusto = Number(prompt("Custo:", p.custo));
- let tamanhosStr = prompt("Tamanhos (P:2,M:3):");
-
- let novosTamanhos = parseTamanhos(tamanhosStr);
+ let novoNome=prompt("Nome",p.nome);
+ let novoDesc=prompt("Desc",p.desc);
+ let novoValor=+prompt("Valor",p.valor);
+ let novoTam=prompt("Tam", "P:2,M:3");
 
  await updateDoc(doc(db,"produtos",id),{
-   nome: novoNome,
-   desc: novaDesc,
-   valor: novoValor,
-   custo: novoCusto,
-   tamanhos: novosTamanhos
+ nome:novoNome,
+ desc:novoDesc,
+ valor:novoValor,
+ tamanhos:parseTam(novoTam)
  });
 
  carregar();
 }
 
-window.proximaPagina = function(){
- paginaAtual++;
- render();
-}
-
-window.paginaAnterior = function(){
- if(paginaAtual > 1){
-   paginaAtual--;
-   render();
- }
-}
-
 function render(){
- let filtro = document.getElementById('filtro').value;
- let lista = document.getElementById('lista');
- lista.innerHTML='';
+ let f=filtro.value;
+ let lista=document.getElementById("lista");
 
- let totalEstoque=0,totalVendido=0,totalInvestido=0;
+ let filtrados=produtos.filter(p=>f==="Todos"||p.categoria===f);
 
- let filtrados = produtos.filter(p=>{
-   return filtro === 'Todos' || p.categoria === filtro;
- });
+ let start=(pagina-1)*porPagina;
+ let itens=filtrados.slice(start,start+porPagina);
 
- let inicio = (paginaAtual - 1) * itensPorPagina;
- let fim = inicio + itensPorPagina;
- let paginaItens = filtrados.slice(inicio,fim);
+ let estoque=0,vendido=0,investido=0;
 
- lista.innerHTML = '<div class="grid-produtos">';
+ lista.innerHTML='<div class="grid-produtos">';
 
- paginaItens.forEach(p=>{
- totalInvestido += p.custo;
+ itens.forEach(p=>{
+ investido+=p.custo;
 
- let tamanhosHTML='';
-
+ let tHTML='';
  for(let t in p.tamanhos){
- let dados=p.tamanhos[t];
- let restante=dados.total-dados.vendido;
+ let d=p.tamanhos[t];
+ let rest=d.total-d.vendido;
 
- totalVendido += dados.vendido * p.valor;
- totalEstoque += restante * p.valor;
+ vendido+=d.vendido*p.valor;
+ estoque+=rest*p.valor;
 
- tamanhosHTML+=`
- <div class="info">
- ${t}: ${restante}
- <button onclick="vender('${p.id}','${t}')">-1</button>
+ tHTML+=`
+ <div class="tam">
+ ${t}: ${rest}
+ <button onclick="vender('${p.id}','${t}')">+</button>
  </div>`;
  }
 
  lista.innerHTML+=`
  <div class="card">
  <img src="${p.img}">
- <h3>${p.nome}</h3>
+ <div class="nome">${p.nome}</div>
  <div class="info">${p.desc}</div>
  <div class="info">R$ ${p.valor}</div>
- ${tamanhosHTML}
 
- <button class="blue" onclick="editarProduto('${p.id}')">Editar</button>
- <button class="red" onclick="excluir('${p.id}')">Excluir</button>
+ <div class="tamanhos">${tHTML}</div>
+
+ <div class="actions">
+ <button class="blue" onclick="editar('${p.id}')">Editar</button>
+ <button class="red" onclick="remover('${p.id}')">Excluir</button>
+ </div>
  </div>`;
  });
 
- lista.innerHTML += '</div>';
+ lista.innerHTML+='</div>';
 
- lista.innerHTML += `
+ lista.innerHTML+=`
  <div class="paginacao">
- <button onclick="paginaAnterior()">Voltar</button>
- <button onclick="proximaPagina()">Próximo</button>
+ <button class="gray" onclick="pagina--,render()">Voltar</button>
+ <button class="gray" onclick="pagina++,render()">Próximo</button>
  </div>
  `;
 
- document.getElementById('totalEstoque').innerText = totalEstoque.toFixed(2);
- document.getElementById('totalVendido').innerText = totalVendido.toFixed(2);
- document.getElementById('totalInvestido').innerText = totalInvestido.toFixed(2);
- document.getElementById('lucro').innerText = (totalVendido - totalInvestido).toFixed(2);
+ totalEstoque.innerText=estoque.toFixed(2);
+ totalVendido.innerText=vendido.toFixed(2);
+ totalInvestido.innerText=investido.toFixed(2);
+ lucro.innerText=(vendido-investido).toFixed(2);
 }
 </script>
 
 <script>
 if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js');
-  });
+ navigator.serviceWorker.register('/sw.js');
 }
 </script>
 
