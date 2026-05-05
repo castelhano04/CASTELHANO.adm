@@ -9,16 +9,8 @@
 <meta name="theme-color" content="#0f172a">
 
 <style>
-body{
-font-family:Arial;
-background:#0f172a;
-color:white;
-margin:0;
-padding:10px
-}
-
+body{font-family:Arial;background:#0f172a;color:white;margin:0;padding:10px}
 .container{max-width:1100px;margin:auto}
-
 h2{text-align:center}
 
 .topo{
@@ -32,24 +24,15 @@ margin-bottom:10px
 background:#1e293b;
 padding:10px;
 border-radius:10px;
-text-align:center;
-font-size:14px
+text-align:center
 }
 
 input,textarea,select{
-width:100%;
-padding:10px;
-margin:5px 0;
-border-radius:8px;
-border:none
+width:100%;padding:10px;margin:5px 0;border-radius:8px;border:none
 }
 
 button{
-padding:10px;
-border:none;
-border-radius:8px;
-cursor:pointer;
-font-weight:bold
+padding:10px;border:none;border-radius:8px;cursor:pointer;font-weight:bold
 }
 
 .green{background:#22c55e;color:white}
@@ -60,18 +43,13 @@ font-weight:bold
 .grid-produtos{
 display:grid;
 grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
-gap:12px;
-margin-top:10px
+gap:12px
 }
 
 .card{
 background:#1e293b;
 border-radius:12px;
-overflow:hidden;
-padding:8px;
-display:flex;
-flex-direction:column;
-gap:5px
+padding:8px
 }
 
 .card img{
@@ -81,31 +59,12 @@ object-fit:cover;
 border-radius:8px
 }
 
-.nome{font-size:15px;font-weight:bold}
 .info{font-size:13px;color:#cbd5f5}
-
-.tamanhos{
-background:#0f172a;
-padding:5px;
-border-radius:8px
-}
 
 .tam{
 display:flex;
 justify-content:space-between;
-align-items:center;
 margin:3px 0
-}
-
-.tam button{
-padding:3px 8px;
-font-size:12px
-}
-
-.actions{
-display:flex;
-gap:5px;
-margin-top:5px
 }
 
 .paginacao{
@@ -130,10 +89,10 @@ margin-top:15px
 <h2>Controle de Estoque</h2>
 
 <div class="topo">
-<div class="card-top">Estoque<br>R$ <span id="totalEstoque">0</span></div>
-<div class="card-top">Vendido<br>R$ <span id="totalVendido">0</span></div>
-<div class="card-top">Investido<br>R$ <span id="totalInvestido">0</span></div>
-<div class="card-top">Lucro<br>R$ <span id="lucro">0</span></div>
+<div class="card-top">Estoque R$ <span id="totalEstoque">0</span></div>
+<div class="card-top">Vendido R$ <span id="totalVendido">0</span></div>
+<div class="card-top">Investido R$ <span id="totalInvestido">0</span></div>
+<div class="card-top">Lucro R$ <span id="lucro">0</span></div>
 </div>
 
 <input type="file" id="foto">
@@ -147,7 +106,7 @@ margin-top:15px
 <option>Outros</option>
 </select>
 
-<input type="number" id="valor" placeholder="Valor venda">
+<input type="number" id="valor" placeholder="Valor">
 <input type="number" id="custo" placeholder="Custo unitário">
 <input type="text" id="tamanhos" placeholder="P:2,M:3,G:1">
 
@@ -170,80 +129,105 @@ margin-top:15px
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const app = initializeApp({
- apiKey: "AIzaSyD4TfY6Iwrju_aaG1vpN-q1Z9LyiDBeQvQ",
+const appFirebase = initializeApp({
+ apiKey: "AIza...",
  authDomain: "estoque-app-13f1d.firebaseapp.com",
  projectId: "estoque-app-13f1d",
 });
 
-const db = getFirestore(app);
+const db = getFirestore(appFirebase);
 
 let produtos=[];
 let pagina=1;
 const porPagina=6;
 
-window.logar=()=>{
- if(senha.value==="161004"){
- login.style.display="none";
- app.style.display="block";
- carregar();
- }else alert("Senha errada");
+window.logar = function(){
+ const senhaInput = document.getElementById("senha").value;
+
+ if(senhaInput === "161004"){
+   document.getElementById("login").style.display = "none";
+   document.getElementById("app").style.display = "block";
+   carregar();
+ } else {
+   alert("Senha errada");
+ }
 }
 
 async function carregar(){
+ try{
  const snap=await getDocs(collection(db,"produtos"));
  produtos=[];
  snap.forEach(d=>produtos.push({id:d.id,...d.data()}));
  render();
+ }catch(e){
+ console.error(e);
+ alert("Erro ao carregar dados");
+ }
 }
 
 function base64(file){
- return new Promise(r=>{
- let reader=new FileReader();
- reader.onload=()=>r(reader.result);
- reader.readAsDataURL(file);
+ return new Promise((resolve)=>{
+ let r=new FileReader();
+ r.onload=()=>resolve(r.result);
+ r.readAsDataURL(file);
  });
 }
 
 function parseTam(str){
  let obj={};
+ if(!str) return obj;
+
  str.split(',').forEach(p=>{
  let [t,q]=p.split(':');
- if(t&&q)obj[t.trim()]={total:+q,vendido:0};
+ if(t && q){
+ obj[t.trim()]={total:Number(q),vendido:0};
+ }
  });
  return obj;
 }
 
 window.addProduto=async()=>{
- let file=foto.files[0];
+ try{
+ let file=document.getElementById("foto").files[0];
  if(!file) return alert("Selecione imagem");
 
  let img=await base64(file);
- let tam=parseTam(tamanhos.value);
+ let tam=parseTam(document.getElementById("tamanhos").value);
 
  let total=Object.values(tam).reduce((a,b)=>a+b.total,0);
- let custoTotal=custo.value*total;
+ let custoTotal=document.getElementById("custo").value * total;
 
  await addDoc(collection(db,"produtos"),{
- nome:nome.value,
- desc:desc.value,
- categoria:categoria.value,
- valor:+valor.value,
+ nome:document.getElementById("nome").value,
+ desc:document.getElementById("desc").value,
+ categoria:document.getElementById("categoria").value,
+ valor:Number(document.getElementById("valor").value),
  custo:custoTotal,
  tamanhos:tam,
  img
  });
 
  carregar();
+ }catch(e){
+ console.error(e);
+ alert("Erro ao salvar");
+ }
 }
 
 window.vender=async(id,t)=>{
+ try{
  let p=produtos.find(x=>x.id===id);
- if(p.tamanhos[t].vendido>=p.tamanhos[t].total)return;
+ if(!p || !p.tamanhos || !p.tamanhos[t]) return;
+
+ if(p.tamanhos[t].vendido >= p.tamanhos[t].total) return;
 
  p.tamanhos[t].vendido++;
+
  await updateDoc(doc(db,"produtos",id),{tamanhos:p.tamanhos});
  carregar();
+ }catch(e){
+ console.error(e);
+ }
 }
 
 window.remover=async(id)=>{
@@ -253,27 +237,32 @@ window.remover=async(id)=>{
 
 window.editar=async(id)=>{
  let p=produtos.find(x=>x.id===id);
+ if(!p) return;
 
  let novoNome=prompt("Nome",p.nome);
- let novoDesc=prompt("Desc",p.desc);
- let novoValor=+prompt("Valor",p.valor);
- let novoTam=prompt("Tam", "P:2,M:3");
+ let novaDesc=prompt("Desc",p.desc);
+ let novoValor=Number(prompt("Valor",p.valor));
+ let novosTam=prompt("Tam (P:2,M:3)", "P:2,M:3");
 
  await updateDoc(doc(db,"produtos",id),{
  nome:novoNome,
- desc:novoDesc,
+ desc:novaDesc,
  valor:novoValor,
- tamanhos:parseTam(novoTam)
+ tamanhos:parseTam(novosTam)
  });
 
  carregar();
 }
 
 function render(){
- let f=filtro.value;
  let lista=document.getElementById("lista");
+ lista.innerHTML="";
 
- let filtrados=produtos.filter(p=>f==="Todos"||p.categoria===f);
+ let filtro=document.getElementById("filtro").value;
+
+ let filtrados=produtos.filter(p=>filtro==="Todos"||p.categoria===filtro);
+
+ if(pagina < 1) pagina=1;
 
  let start=(pagina-1)*porPagina;
  let itens=filtrados.slice(start,start+porPagina);
@@ -283,15 +272,18 @@ function render(){
  lista.innerHTML='<div class="grid-produtos">';
 
  itens.forEach(p=>{
- investido+=p.custo;
+ if(!p.tamanhos) return;
 
- let tHTML='';
+ investido+=p.custo || 0;
+
+ let tHTML="";
+
  for(let t in p.tamanhos){
  let d=p.tamanhos[t];
- let rest=d.total-d.vendido;
+ let rest=d.total - d.vendido;
 
- vendido+=d.vendido*p.valor;
- estoque+=rest*p.valor;
+ vendido+=d.vendido * p.valor;
+ estoque+=rest * p.valor;
 
  tHTML+=`
  <div class="tam">
@@ -303,16 +295,12 @@ function render(){
  lista.innerHTML+=`
  <div class="card">
  <img src="${p.img}">
- <div class="nome">${p.nome}</div>
+ <b>${p.nome}</b>
  <div class="info">${p.desc}</div>
  <div class="info">R$ ${p.valor}</div>
-
- <div class="tamanhos">${tHTML}</div>
-
- <div class="actions">
+ ${tHTML}
  <button class="blue" onclick="editar('${p.id}')">Editar</button>
  <button class="red" onclick="remover('${p.id}')">Excluir</button>
- </div>
  </div>`;
  });
 
@@ -325,10 +313,10 @@ function render(){
  </div>
  `;
 
- totalEstoque.innerText=estoque.toFixed(2);
- totalVendido.innerText=vendido.toFixed(2);
- totalInvestido.innerText=investido.toFixed(2);
- lucro.innerText=(vendido-investido).toFixed(2);
+ document.getElementById("totalEstoque").innerText=estoque.toFixed(2);
+ document.getElementById("totalVendido").innerText=vendido.toFixed(2);
+ document.getElementById("totalInvestido").innerText=investido.toFixed(2);
+ document.getElementById("lucro").innerText=(vendido-investido).toFixed(2);
 }
 </script>
 
