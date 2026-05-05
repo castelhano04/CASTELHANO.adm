@@ -5,16 +5,13 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Estoque</title>
 
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0f172a">
-
 <style>
 body{
-  font-family: 'Segoe UI', Arial;
-  background:#0f172a;
-  color:white;
+  font-family:Arial;
+  background:#f1f5f9;
   margin:0;
   padding:15px;
+  color:#111;
 }
 
 .container{
@@ -30,9 +27,10 @@ body{
 }
 
 .card{
-  background:#1e293b;
+  background:white;
   padding:12px;
-  border-radius:12px;
+  border-radius:10px;
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
   text-align:center;
   font-weight:bold;
 }
@@ -40,37 +38,44 @@ body{
 /* FORM */
 input,textarea,select{
   width:100%;
-  padding:8px;
-  margin:5px 0;
-  border-radius:6px;
-  border:none;
+  padding:10px;
+  margin:6px 0;
+  border-radius:8px;
+  border:1px solid #ccc;
 }
 
+/* BOTÕES */
 button{
   padding:8px;
   border:none;
-  border-radius:6px;
+  border-radius:8px;
   cursor:pointer;
   font-weight:bold;
 }
 
-/* CATÁLOGO */
+.green{background:#22c55e;color:white}
+.blue{background:#3b82f6;color:white}
+.red{background:#ef4444;color:white}
+
+/* GRID LOJA */
 .grid-produtos{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
+  grid-template-columns:repeat(auto-fill,minmax(240px,1fr));
   gap:15px;
-  margin-top:15px;
+  margin-top:20px;
 }
 
+/* CARD */
 .card-produto{
-  background:#1e293b;
-  border-radius:14px;
+  background:white;
+  border-radius:12px;
   overflow:hidden;
+  box-shadow:0 3px 10px rgba(0,0,0,0.1);
   transition:0.2s;
 }
 
 .card-produto:hover{
-  transform:scale(1.03);
+  transform:translateY(-3px);
 }
 
 /* IMAGEM */
@@ -80,55 +85,52 @@ button{
   object-fit:cover;
 }
 
-/* CONTEÚDO */
+/* CONTEUDO */
 .produto-info{
   padding:10px;
 }
 
 .nome{
-  font-size:15px;
+  font-size:14px;
   font-weight:bold;
 }
 
 .desc{
   font-size:12px;
-  color:#cbd5e1;
+  color:#555;
   margin:4px 0;
 }
 
 .preco{
-  font-size:16px;
-  color:#22c55e;
+  font-size:18px;
+  color:#16a34a;
   font-weight:bold;
 }
 
 /* TAMANHOS */
-.tamanhos{
-  margin-top:8px;
-}
-
 .tam{
   display:flex;
   justify-content:space-between;
   font-size:12px;
+  margin:3px 0;
 }
 
-/* BOTÕES */
+/* BOTÕES CARD */
 .btns{
   display:flex;
   gap:5px;
   margin-top:8px;
 }
 
-.vender{background:#22c55e;color:white}
-.editar{background:#3b82f6;color:white}
-.excluir{background:#ef4444;color:white}
+.btns button{
+  flex:1;
+}
 
 /* PAGINAÇÃO */
 .paginacao{
   display:flex;
   justify-content:space-between;
-  margin-top:15px;
+  margin-top:20px;
 }
 
 /* MOBILE */
@@ -145,8 +147,8 @@ button{
 
 <div id="login">
 <h2>Login</h2>
-<input type="password" id="senha" placeholder="Senha">
-<button onclick="logar()">Entrar</button>
+<input type="password" id="senha">
+<button class="green" onclick="logar()">Entrar</button>
 </div>
 
 <div id="app" style="display:none">
@@ -175,7 +177,7 @@ button{
 <input type="number" id="custo" placeholder="Custo unitário">
 <input type="text" id="tamanhos" placeholder="P:2,M:3,G:1">
 
-<button onclick="addProduto()">Adicionar</button>
+<button class="green" onclick="addProduto()">Adicionar</button>
 
 <select id="filtro" onchange="paginaAtual=1; render()">
 <option value="Todos">Todos</option>
@@ -202,28 +204,25 @@ const app = initializeApp({
 
 const db = getFirestore(app);
 
-let produtos = [];
-let paginaAtual = 1;
-const itensPorPagina = 15;
+let produtos=[];
+let paginaAtual=1;
+const itensPorPagina=15;
 
-/* LOGIN */
-window.logar = function(){
- if(senha.value==="161004"){
+window.logar=function(){
+ if(document.getElementById("senha").value==="161004"){
    login.style.display="none";
    app.style.display="block";
    carregar();
  } else alert("Senha errada");
 }
 
-/* CARREGAR */
 async function carregar(){
- const snap = await getDocs(collection(db,"produtos"));
+ const snap=await getDocs(collection(db,"produtos"));
  produtos=[];
  snap.forEach(d=>produtos.push({id:d.id,...d.data()}));
  render();
 }
 
-/* BASE64 */
 function base64(file){
  return new Promise(r=>{
  let reader=new FileReader();
@@ -232,10 +231,8 @@ function base64(file){
  });
 }
 
-/* TAMANHOS */
 function parseTam(str){
  let obj={};
- if(!str) return obj;
  str.split(',').forEach(p=>{
  let [t,q]=p.split(':');
  if(t&&q)obj[t.trim()]={total:+q,vendido:0};
@@ -243,23 +240,18 @@ function parseTam(str){
  return obj;
 }
 
-/* ADD */
-window.addProduto = async()=>{
- let file=foto.files[0];
- if(!file) return alert("Imagem obrigatória");
-
- let img=await base64(file);
+window.addProduto=async()=>{
+ let img=await base64(foto.files[0]);
  let tam=parseTam(tamanhos.value);
 
  let total=Object.values(tam).reduce((a,b)=>a+b.total,0);
- let custoTotal=custo.value*total;
 
  await addDoc(collection(db,"produtos"),{
  nome:nome.value,
  desc:desc.value,
  categoria:categoria.value,
  valor:+valor.value,
- custo:custoTotal,
+ custo:custo.value*total,
  tamanhos:tam,
  img
  });
@@ -267,49 +259,30 @@ window.addProduto = async()=>{
  carregar();
 }
 
-/* VENDER */
-window.vender = async(id,t)=>{
+window.vender=async(id,t)=>{
  let p=produtos.find(x=>x.id===id);
- if(!p || !p.tamanhos[t]) return;
-
  if(p.tamanhos[t].vendido>=p.tamanhos[t].total) return;
-
  p.tamanhos[t].vendido++;
  await updateDoc(doc(db,"produtos",id),{tamanhos:p.tamanhos});
  carregar();
 }
 
-/* EXCLUIR */
-window.excluir = async(id)=>{
+window.excluir=async(id)=>{
  await deleteDoc(doc(db,"produtos",id));
  carregar();
 }
 
-/* EDITAR */
-window.editarProduto = async(id)=>{
+window.editarProduto=async(id)=>{
  let p=produtos.find(x=>x.id===id);
- if(!p) return;
-
- let nomeN=prompt("Nome",p.nome);
- let descN=prompt("Desc",p.desc);
- let valorN=+prompt("Valor",p.valor);
- let tamN=prompt("Tam","P:2,M:3");
-
  await updateDoc(doc(db,"produtos",id),{
- nome:nomeN,
- desc:descN,
- valor:valorN,
- tamanhos:parseTam(tamN)
+ nome:prompt("Nome",p.nome),
+ desc:prompt("Desc",p.desc),
+ valor:+prompt("Valor",p.valor),
+ tamanhos:parseTam(prompt("Tam","P:2,M:3"))
  });
-
  carregar();
 }
 
-/* PAGINAÇÃO */
-window.proximaPagina=()=>{paginaAtual++;render()}
-window.paginaAnterior=()=>{if(paginaAtual>1){paginaAtual--;render()}}
-
-/* RENDER */
 function render(){
  let lista=document.getElementById("lista");
  let filtro=document.getElementById("filtro").value;
@@ -324,12 +297,7 @@ function render(){
  lista.innerHTML='<div class="grid-produtos">';
 
  itens.forEach(p=>{
- if(!p.tamanhos) p.tamanhos={UNICO:{total:1,vendido:0}};
-
- investido+=p.custo||0;
-
- let tHTML='';
-
+ let tHTML="";
  for(let t in p.tamanhos){
  let d=p.tamanhos[t];
  let rest=d.total-d.vendido;
@@ -340,21 +308,21 @@ function render(){
  tHTML+=`
  <div class="tam">
  ${t}: ${rest}
- <button class="vender" onclick="vender('${p.id}','${t}')">+</button>
+ <button class="green" onclick="vender('${p.id}','${t}')">+</button>
  </div>`;
  }
 
  lista.innerHTML+=`
  <div class="card-produto">
-   <img src="${p.img || ''}">
+   <img src="${p.img}">
    <div class="produto-info">
      <div class="nome">${p.nome}</div>
      <div class="desc">${p.desc}</div>
      <div class="preco">R$ ${p.valor}</div>
-     <div class="tamanhos">${tHTML}</div>
+     ${tHTML}
      <div class="btns">
-       <button class="editar" onclick="editarProduto('${p.id}')">Editar</button>
-       <button class="excluir" onclick="excluir('${p.id}')">X</button>
+       <button class="blue" onclick="editarProduto('${p.id}')">Editar</button>
+       <button class="red" onclick="excluir('${p.id}')">Excluir</button>
      </div>
    </div>
  </div>`;
@@ -364,8 +332,8 @@ function render(){
 
  lista.innerHTML+=`
  <div class="paginacao">
- <button onclick="paginaAnterior()">Voltar</button>
- <button onclick="proximaPagina()">Próximo</button>
+ <button onclick="paginaAtual--,render()">Voltar</button>
+ <button onclick="paginaAtual++,render()">Próximo</button>
  </div>
  `;
 
