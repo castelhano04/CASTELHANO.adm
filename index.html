@@ -3,201 +3,209 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estoque</title>
+<title>Estoque CP10</title>
 
 <style>
 body{
-  font-family:Arial;
-  background:#f4f6f9;
   margin:0;
-  padding:15px;
-  color:#111;
+  font-family:Arial;
+  background:#fff7ed;
 }
 
-.container{
-  max-width:1200px;
-  margin:auto;
+/* LOGIN */
+#login{
+  max-width:300px;
+  margin:80px auto;
+  background:#ea580c;
+  padding:20px;
+  border-radius:10px;
+  text-align:center;
+  color:white;
+}
+
+#login input{
+  width:100%;
+  padding:8px;
+  border:none;
+  border-radius:6px;
+  margin:10px 0;
 }
 
 /* TOPO */
+.topo{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:10px;
+  background:#ea580c;
+  color:white;
+}
+
+.resumo{
+  display:flex;
+  gap:15px;
+  font-size:14px;
+}
+
+/* TABS */
+.tabs{
+  display:flex;
+  gap:10px;
+  padding:10px;
+}
+
+.tab{
+  padding:8px 15px;
+  background:#e2e8f0;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+.tab.ativo{
+  background:#ea580c;
+  color:white;
+}
+
+/* FORM */
+.form{
+  padding:10px;
+}
+
+input,textarea{
+  width:100%;
+  padding:8px;
+  margin:5px 0;
+  border-radius:6px;
+  border:1px solid #ccc;
+}
+
+/* GRID PRODUTOS */
 .grid{
   display:grid;
-  grid-template-columns:repeat(4,1fr);
+  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
   gap:10px;
+  padding:10px;
 }
 
 .card{
   background:white;
-  padding:12px;
   border-radius:10px;
-  box-shadow:0 2px 6px rgba(0,0,0,0.1);
-  text-align:center;
-  font-weight:bold;
-}
-
-/* FORM */
-input,textarea,select{
-  width:100%;
-  padding:10px;
-  margin:6px 0;
-  border-radius:8px;
-  border:1px solid #ccc;
-}
-
-/* BOTÕES */
-button{
-  padding:8px;
-  border:none;
-  border-radius:8px;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-.green{background:#22c55e;color:white}
-.blue{background:#3b82f6;color:white}
-.red{background:#ef4444;color:white}
-
-/* GRID LOJA */
-.grid-produtos{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(230px,1fr));
-  gap:15px;
-  margin-top:20px;
-}
-
-/* CARD */
-.card-produto{
-  background:white;
-  border-radius:12px;
   overflow:hidden;
-  box-shadow:0 3px 10px rgba(0,0,0,0.1);
+  box-shadow:0 2px 6px rgba(0,0,0,0.1);
 }
 
-.card-produto img{
+.card img{
   width:100%;
-  height:180px;
+  height:140px;
   object-fit:cover;
 }
 
-.produto-info{
-  padding:10px;
+.info{
+  padding:8px;
+  font-size:13px;
 }
 
-.nome{font-size:14px;font-weight:bold}
-.desc{font-size:12px;color:#555;margin:4px 0}
-.preco{font-size:18px;color:#16a34a;font-weight:bold}
-
-.tam{
-  display:flex;
-  justify-content:space-between;
-  font-size:12px;
+.preco{
+  color:#16a34a;
+  font-weight:bold;
 }
 
-.btns{
-  display:flex;
-  gap:5px;
-  margin-top:8px;
+button{
+  padding:6px;
+  border:none;
+  border-radius:6px;
+  margin-top:5px;
+  cursor:pointer;
 }
 
-.btns button{flex:1}
-
-.paginacao{
-  display:flex;
-  justify-content:space-between;
-  margin-top:20px;
-}
-
-@media(max-width:600px){
-  .grid-produtos{
-    grid-template-columns:repeat(2,1fr);
-  }
-}
+.green{background:#22c55e;color:white}
+.red{background:#ef4444;color:white}
 </style>
 </head>
 
 <body>
-<div class="container">
 
+<!-- LOGIN -->
 <div id="login">
-<h2>Login</h2>
-<input type="password" id="senha">
-<button class="green" onclick="logar()">Entrar</button>
+<h2>ESTOQUE CP10</h2>
+<input type="password" id="senha" placeholder="Senha">
+<button onclick="logar()">Entrar</button>
 </div>
 
+<!-- APP -->
 <div id="app" style="display:none">
 
-<h2>Meu Estoque</h2>
-
-<div class="grid">
-<div class="card">Estoque R$ <span id="totalEstoque">0</span></div>
-<div class="card">Vendido R$ <span id="totalVendido">0</span></div>
-<div class="card">Investido R$ <span id="totalInvestido">0</span></div>
-<div class="card">Lucro R$ <span id="lucro">0</span></div>
+<div class="topo">
+  <h3>Estoque</h3>
+  <div class="resumo">
+    <span>Investido: R$ <b id="investido">0</b></span>
+    <span>Estoque: R$ <b id="estoque">0</b></span>
+    <span>Lucro: R$ <b id="lucro">0</b></span>
+  </div>
 </div>
+
+<div class="tabs">
+  <div class="tab ativo" onclick="trocarTab('add')">Adicionar</div>
+  <div class="tab" onclick="trocarTab('lista')">Produtos</div>
+</div>
+
+<!-- ABA ADD -->
+<div id="add" class="form">
 
 <input type="file" id="foto">
 <input type="text" id="nome" placeholder="Nome">
-<textarea id="desc" placeholder="Descrição"></textarea>
-
-<select id="categoria">
-<option>Europeu</option>
-<option>Seleções</option>
-<option>Brasil</option>
-<option>Outros</option>
-</select>
-
-<input type="number" id="valor" placeholder="Valor">
-<input type="number" id="custo" placeholder="Custo unitário">
-<input type="text" id="tamanhos" placeholder="P:2,M:3,G:1">
+<input type="number" id="custo" placeholder="Custo por peça (ex: 27)">
+<input type="number" id="valor" placeholder="Valor de venda">
+<input type="text" id="tamanhos" placeholder="P:5,M:3,G:2">
 
 <button class="green" onclick="addProduto()">Adicionar</button>
 
-<select id="filtro" onchange="paginaAtual=1; render()">
-<option value="Todos">Todos</option>
-<option value="Europeu">Europeu</option>
-<option value="Seleções">Seleções</option>
-<option value="Brasil">Brasil</option>
-<option value="Outros">Outros</option>
-</select>
-
-<div id="lista"></div>
-
 </div>
+
+<!-- ABA LISTA -->
+<div id="lista" style="display:none">
+<div class="grid" id="produtos"></div>
+</div>
+
 </div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, updateDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-const appFirebase = initializeApp({
- apiKey: "AIzaSyD4TfY6Iwrju_aaG1vpN-q1Z9LyiDBeQvQ",
- authDomain: "estoque-app-13f1d.firebaseapp.com",
- projectId: "estoque-app-13f1d",
+const app = initializeApp({
+ apiKey:"AIzaSyD4TfY6Iwrju_aaG1vpN-q1Z9LyiDBeQvQ",
+ authDomain:"estoque-app-13f1d.firebaseapp.com",
+ projectId:"estoque-app-13f1d"
 });
 
-const db = getFirestore(appFirebase);
+const db=getFirestore(app);
 
 let produtos=[];
-let paginaAtual=1;
-const itensPorPagina=15;
 
-/* LOGIN CORRIGIDO */
+/* LOGIN */
 window.logar=function(){
- const senhaInput = document.getElementById("senha").value;
-
- if(senhaInput==="161004"){
+ if(document.getElementById("senha").value==="161004"){
    document.getElementById("login").style.display="none";
    document.getElementById("app").style.display="block";
    carregar();
  } else alert("Senha errada");
 }
 
-/* CARREGAR */
-async function carregar(){
- const snap=await getDocs(collection(db,"produtos"));
- produtos=[];
- snap.forEach(d=>produtos.push({id:d.id,...d.data()}));
- render();
+/* TABS */
+window.trocarTab=function(tab){
+ document.getElementById("add").style.display="none";
+ document.getElementById("lista").style.display="none";
+
+ document.querySelectorAll('.tab').forEach(t=>t.classList.remove('ativo'));
+
+ if(tab==="add"){
+   document.getElementById("add").style.display="block";
+   document.querySelectorAll('.tab')[0].classList.add('ativo');
+ }else{
+   document.getElementById("lista").style.display="block";
+   document.querySelectorAll('.tab')[1].classList.add('ativo');
+ }
 }
 
 /* BASE64 */
@@ -212,7 +220,6 @@ function base64(file){
 /* TAMANHOS */
 function parseTam(str){
  let obj={};
- if(!str) return obj;
  str.split(',').forEach(p=>{
  let [t,q]=p.split(':');
  if(t&&q)obj[t.trim()]={total:+q,vendido:0};
@@ -223,19 +230,18 @@ function parseTam(str){
 /* ADD */
 window.addProduto=async()=>{
  let file=foto.files[0];
- if(!file) return alert("Selecione imagem");
+ if(!file) return alert("Imagem obrigatória");
 
  let img=await base64(file);
  let tam=parseTam(tamanhos.value);
 
  let total=Object.values(tam).reduce((a,b)=>a+b.total,0);
+ let custoTotal=custo.value*total;
 
  await addDoc(collection(db,"produtos"),{
  nome:nome.value,
- desc:desc.value,
- categoria:categoria.value,
  valor:+valor.value,
- custo:custo.value*total,
+ custo:custoTotal,
  tamanhos:tam,
  img
  });
@@ -243,58 +249,25 @@ window.addProduto=async()=>{
  carregar();
 }
 
-/* VENDER */
-window.vender=async(id,t)=>{
- let p=produtos.find(x=>x.id===id);
- if(!p || !p.tamanhos[t]) return;
-
- if(p.tamanhos[t].vendido>=p.tamanhos[t].total) return;
-
- p.tamanhos[t].vendido++;
- await updateDoc(doc(db,"produtos",id),{tamanhos:p.tamanhos});
- carregar();
-}
-
-/* EXCLUIR */
-window.excluir=async(id)=>{
- await deleteDoc(doc(db,"produtos",id));
- carregar();
-}
-
-/* EDITAR */
-window.editarProduto=async(id)=>{
- let p=produtos.find(x=>x.id===id);
- if(!p) return;
-
- await updateDoc(doc(db,"produtos",id),{
- nome:prompt("Nome",p.nome),
- desc:prompt("Desc",p.desc),
- valor:+prompt("Valor",p.valor),
- tamanhos:parseTam(prompt("Tam","P:2,M:3"))
- });
-
- carregar();
+/* CARREGAR */
+async function carregar(){
+ let snap=await getDocs(collection(db,"produtos"));
+ produtos=[];
+ snap.forEach(d=>produtos.push({id:d.id,...d.data()}));
+ render();
 }
 
 /* RENDER */
 function render(){
- let lista=document.getElementById("lista");
- let filtro=document.getElementById("filtro").value;
+ let container=document.getElementById("produtos");
+ container.innerHTML="";
 
- let filtrados=produtos.filter(p=>filtro==="Todos"||p.categoria===filtro);
+ let investido=0,estoque=0,vendido=0;
 
- let inicio=(paginaAtual-1)*itensPorPagina;
- let itens=filtrados.slice(inicio,inicio+itensPorPagina);
-
- let estoque=0,vendido=0,investido=0;
-
- lista.innerHTML='<div class="grid-produtos">';
-
- itens.forEach(p=>{
- if(!p.tamanhos) p.tamanhos={UNICO:{total:1,vendido:0}};
+ produtos.forEach((p,i)=>{
+ let letra=String.fromCharCode(65+i); // A B C
 
  let tHTML="";
-
  for(let t in p.tamanhos){
  let d=p.tamanhos[t];
  let rest=d.total-d.vendido;
@@ -302,42 +275,25 @@ function render(){
  vendido+=d.vendido*p.valor;
  estoque+=rest*p.valor;
 
- tHTML+=`
- <div class="tam">
- ${t}: ${rest}
- <button class="green" onclick="vender('${p.id}','${t}')">+</button>
- </div>`;
+ tHTML+=`${t}:${rest} `;
  }
 
- lista.innerHTML+=`
- <div class="card-produto">
-   <img src="${p.img || ''}">
-   <div class="produto-info">
-     <div class="nome">${p.nome || ''}</div>
-     <div class="desc">${p.desc || ''}</div>
-     <div class="preco">R$ ${p.valor || 0}</div>
+ investido+=p.custo;
+
+ container.innerHTML+=`
+ <div class="card">
+   <img src="${p.img}">
+   <div class="info">
+     <b>FT-${letra}</b><br>
+     R$ ${p.valor}<br>
      ${tHTML}
-     <div class="btns">
-       <button class="blue" onclick="editarProduto('${p.id}')">Editar</button>
-       <button class="red" onclick="excluir('${p.id}')">Excluir</button>
-     </div>
    </div>
  </div>`;
  });
 
- lista.innerHTML+='</div>';
-
- lista.innerHTML+=`
- <div class="paginacao">
- <button onclick="paginaAtual--,render()">Voltar</button>
- <button onclick="paginaAtual++,render()">Próximo</button>
- </div>
- `;
-
- totalEstoque.innerText=estoque.toFixed(2);
- totalVendido.innerText=vendido.toFixed(2);
- totalInvestido.innerText=investido.toFixed(2);
- lucro.innerText=(vendido-investido).toFixed(2);
+ document.getElementById("investido").innerText=investido.toFixed(2);
+ document.getElementById("estoque").innerText=estoque.toFixed(2);
+ document.getElementById("lucro").innerText=(vendido-investido).toFixed(2);
 }
 </script>
 
