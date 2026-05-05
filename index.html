@@ -10,13 +10,55 @@
 
 <style>
 body{font-family:Arial;background:#0f172a;color:white;margin:0;padding:10px}
-.container{max-width:520px;margin:auto}
-input,textarea,select{width:100%;padding:8px;margin:5px 0;border-radius:6px;border:none}
-button{padding:10px;margin:5px 0;width:100%;border:none;border-radius:6px;background:#22c55e;color:white;font-weight:bold}
-.card{background:#1e293b;padding:10px;border-radius:10px;margin-top:10px}
-img{width:100%;border-radius:10px}
+.container{max-width:900px;margin:auto}
+
+input,textarea,select{
+width:100%;padding:8px;margin:5px 0;border-radius:6px;border:none
+}
+
+button{
+padding:10px;margin:5px 0;border:none;border-radius:6px;
+background:#22c55e;color:white;font-weight:bold;cursor:pointer
+}
+
 .red{background:#ef4444}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.blue{background:#3b82f6}
+
+.grid{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:8px
+}
+
+.grid-produtos{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+}
+
+.card{
+background:#1e293b;
+padding:10px;
+border-radius:10px;
+}
+
+.card img{
+width:100%;
+height:150px;
+object-fit:cover;
+border-radius:8px;
+}
+
+.info{
+font-size:14px;
+margin:5px 0;
+}
+
+.paginacao{
+display:flex;
+justify-content:space-between;
+margin-top:15px;
+}
 </style>
 </head>
 
@@ -83,6 +125,8 @@ const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
 let produtos = [];
+let paginaAtual = 1;
+const itensPorPagina = 6;
 
 window.logar = function(){
  if(document.getElementById('senha').value==='161004'){
@@ -140,7 +184,7 @@ window.addProduto = async function(){
 
  const custo = custoUnitario * quantidadeTotal;
 
- const docRef = await addDoc(collection(db,"produtos"),{
+ await addDoc(collection(db,"produtos"),{
  nome,desc,categoria,valor,custo,tamanhos,img:base64
  });
 
@@ -167,6 +211,40 @@ window.excluir = async function(id){
  carregar();
 }
 
+window.editarProduto = async function(id){
+ let p = produtos.find(x=>x.id===id);
+
+ let novoNome = prompt("Nome:", p.nome);
+ let novaDesc = prompt("Descrição:", p.desc);
+ let novoValor = Number(prompt("Valor:", p.valor));
+ let novoCusto = Number(prompt("Custo:", p.custo));
+ let tamanhosStr = prompt("Tamanhos (P:2,M:3):");
+
+ let novosTamanhos = parseTamanhos(tamanhosStr);
+
+ await updateDoc(doc(db,"produtos",id),{
+   nome: novoNome,
+   desc: novaDesc,
+   valor: novoValor,
+   custo: novoCusto,
+   tamanhos: novosTamanhos
+ });
+
+ carregar();
+}
+
+window.proximaPagina = function(){
+ paginaAtual++;
+ render();
+}
+
+window.paginaAnterior = function(){
+ if(paginaAtual > 1){
+   paginaAtual--;
+   render();
+ }
+}
+
 function render(){
  let filtro = document.getElementById('filtro').value;
  let lista = document.getElementById('lista');
@@ -174,9 +252,17 @@ function render(){
 
  let totalEstoque=0,totalVendido=0,totalInvestido=0;
 
- produtos.forEach(p=>{
- if(filtro !== 'Todos' && p.categoria !== filtro) return;
+ let filtrados = produtos.filter(p=>{
+   return filtro === 'Todos' || p.categoria === filtro;
+ });
 
+ let inicio = (paginaAtual - 1) * itensPorPagina;
+ let fim = inicio + itensPorPagina;
+ let paginaItens = filtrados.slice(inicio,fim);
+
+ lista.innerHTML = '<div class="grid-produtos">';
+
+ paginaItens.forEach(p=>{
  totalInvestido += p.custo;
 
  let tamanhosHTML='';
@@ -188,20 +274,34 @@ function render(){
  totalVendido += dados.vendido * p.valor;
  totalEstoque += restante * p.valor;
 
- tamanhosHTML+=`<p>${t}: ${restante} restante <button onclick="vender('${p.id}','${t}')">Vender</button></p>`;
+ tamanhosHTML+=`
+ <div class="info">
+ ${t}: ${restante}
+ <button onclick="vender('${p.id}','${t}')">-1</button>
+ </div>`;
  }
 
  lista.innerHTML+=`
  <div class="card">
  <img src="${p.img}">
  <h3>${p.nome}</h3>
- <p>${p.desc}</p>
- <p>${p.categoria}</p>
- <p>R$ ${p.valor}</p>
+ <div class="info">${p.desc}</div>
+ <div class="info">R$ ${p.valor}</div>
  ${tamanhosHTML}
+
+ <button class="blue" onclick="editarProduto('${p.id}')">Editar</button>
  <button class="red" onclick="excluir('${p.id}')">Excluir</button>
  </div>`;
  });
+
+ lista.innerHTML += '</div>';
+
+ lista.innerHTML += `
+ <div class="paginacao">
+ <button onclick="paginaAnterior()">Voltar</button>
+ <button onclick="proximaPagina()">Próximo</button>
+ </div>
+ `;
 
  document.getElementById('totalEstoque').innerText = totalEstoque.toFixed(2);
  document.getElementById('totalVendido').innerText = totalVendido.toFixed(2);
@@ -210,7 +310,6 @@ function render(){
 }
 </script>
 
-<!-- SERVICE WORKER -->
 <script>
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
