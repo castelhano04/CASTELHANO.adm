@@ -159,7 +159,7 @@ button{
 <input type="text" id="tamanhos" placeholder="P:5,M:3,G:2">
 
 <button class="green" onclick="addProduto()">Adicionar</button>
-
+  
 </div>
 
 <!-- ABA LISTA -->
@@ -232,6 +232,12 @@ function parseTam(str){
 
 /* ADD */
 window.addProduto=async()=>{
+
+ if(!nome.value || !valor.value || !custo.value || !tamanhos.value){
+   alert("Preencha tudo");
+   return;
+ }
+
  let file=foto.files[0];
  if(!file) return alert("Imagem obrigatória");
 
@@ -239,14 +245,14 @@ window.addProduto=async()=>{
  let tam=parseTam(tamanhos.value);
 
  let total=Object.values(tam).reduce((a,b)=>a+b.total,0);
- let custoTotal=custo.value*total;
+ let custoTotal=(Number(custo.value) || 0)*total;
 
  await addDoc(collection(db,"produtos"),{
- nome:nome.value,
- valor:+valor.value,
- custo:custoTotal,
- tamanhos:tam,
- img
+   nome:nome.value,
+   valor:Number(valor.value) || 0,
+   custo:custoTotal,
+   tamanhos:tam,
+   img
  });
 
  carregar();
@@ -336,11 +342,12 @@ function render(){
    let d=p.tamanhos[t];
    let rest=d.total-d.vendido;
 
-   vendidosProduto+=d.vendido;
-   vendidoTotal+=d.vendido*p.valor;
-   estoque+=rest*p.valor;
-   estoqueProduto+=rest;
+  let valorUnit = Number(p.valor) || 0;
 
+vendidosProduto+=d.vendido;
+vendidoTotal+=d.vendido * valorUnit;
+estoque+=rest * valorUnit;
+   
    // descobrir tamanho mais vendido
    if(d.vendido > maiorQtd){
      maiorQtd = d.vendido;
@@ -354,8 +361,7 @@ function render(){
    </div>`;
  }
 
- investido+=p.custo;
-
+ investido += Number(p.custo) || 0;
  // SE AINDA TEM ESTOQUE → MOSTRA
  if(estoqueProduto > 0){
    container.innerHTML+=`
