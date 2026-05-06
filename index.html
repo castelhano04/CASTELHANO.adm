@@ -389,19 +389,51 @@ estoque+=rest * valorUnit;
  });
 
  /* RANKING */
- ranking.sort((a,b)=>b.vendidos-a.vendidos);
+ranking.sort((a,b)=>b.vendidos-a.vendidos);
 
- if(ranking.length){
+if(ranking.length){
+
+ let top = ranking[0];
+
+ // 🔥 DESTAQUE PRINCIPAL
+ container.innerHTML+=`
+ <div style="
+ background:#ea580c;
+ color:white;
+ padding:15px;
+ border-radius:10px;
+ margin:15px;
+ ">
+   <h3>🔥 Mais Vendida</h3>
+   <b style="font-size:18px">${top.nome}</b><br>
+   Total vendido: ${top.vendidos}<br>
+   Tamanho destaque: ${top.tamanhoTop} (${top.qtdTop})
+ </div>
+ `;
+
+ // 📊 HISTÓRICO COMPLETO
  container.innerHTML+=`
  <div style="padding:10px">
- 🔥 Mais vendida: <b>${ranking[0].nome}</b> (${ranking[0].vendidos})<br>
- 🏆 Tamanho mais vendido: ${ranking[0].tamanhoTop} (${ranking[0].qtdTop})
- </div>`;
- }
+ <h3>📊 Histórico de Vendas</h3>
+ `;
 
- document.getElementById("investido").innerText=investido.toFixed(2);
- document.getElementById("estoque").innerText=estoque.toFixed(2);
- document.getElementById("lucro").innerText=(vendidoTotal-investido).toFixed(2);
+ ranking.forEach(p=>{
+   container.innerHTML+=`
+   <div style="
+     background:#fff;
+     padding:10px;
+     margin:8px 0;
+     border-radius:8px;
+     box-shadow:0 2px 5px rgba(0,0,0,0.1);
+   ">
+     <b>${p.nome}</b><br>
+     Vendidos: ${p.vendidos}<br>
+     Tamanho mais vendido: ${p.tamanhoTop} (${p.qtdTop})
+   </div>
+   `;
+ });
+
+ container.innerHTML+=`</div>`;
 }
 </script>
 </body>
