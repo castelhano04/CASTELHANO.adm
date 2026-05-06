@@ -171,7 +171,7 @@ button{
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 const app = initializeApp({
  apiKey:"AIzaSyD4TfY6Iwrju_aaG1vpN-q1Z9LyiDBeQvQ",
@@ -312,15 +312,19 @@ function render(){
  container.innerHTML="";
 
  let investido=0,estoque=0,vendidoTotal=0;
+
  let ranking=[];
 
  produtos.forEach((p)=>{
 
+ if(!p.tamanhos) p.tamanhos={};
+
  let vendidosProduto=0;
+ let estoqueProduto=0;
  let tHTML="";
-   
-if(!p.tamanhos) p.tamanhos = {};
-   
+ let tamanhoMaisVendido="";
+ let maiorQtd=0;
+
  for(let t in p.tamanhos){
    let d=p.tamanhos[t];
    let rest=d.total-d.vendido;
@@ -328,6 +332,13 @@ if(!p.tamanhos) p.tamanhos = {};
    vendidosProduto+=d.vendido;
    vendidoTotal+=d.vendido*p.valor;
    estoque+=rest*p.valor;
+   estoqueProduto+=rest;
+
+   // descobrir tamanho mais vendido
+   if(d.vendido > maiorQtd){
+     maiorQtd = d.vendido;
+     tamanhoMaisVendido = t;
+   }
 
    tHTML+=`
    <div style="display:flex;justify-content:space-between">
@@ -337,34 +348,48 @@ if(!p.tamanhos) p.tamanhos = {};
  }
 
  investido+=p.custo;
- ranking.push({nome:p.nome,vendidos:vendidosProduto});
 
- container.innerHTML+=`
- <div class="card">
-   <img src="${p.img}">
-   <div class="info">
-     <b>${p.nome}</b><br>
-     R$ ${p.valor}<br>
-     Vendidos: ${vendidosProduto}<br>
-     ${tHTML}
-     <button onclick="editarProduto('${p.id}')">Editar</button>
-   </div>
- </div>`;
+ // SE AINDA TEM ESTOQUE → MOSTRA
+ if(estoqueProduto > 0){
+   container.innerHTML+=`
+   <div class="card">
+     <img src="${p.img}">
+     <div class="info">
+       <b>${p.nome}</b><br>
+       R$ ${p.valor}<br>
+       Vendidos: ${vendidosProduto}<br>
+       ${tHTML}
+       <button onclick="editarProduto('${p.id}')">Editar</button>
+       <button class="red" onclick="excluirProduto('${p.id}')">Excluir</button>
+     </div>
+   </div>`;
+ }
+
+ // ranking sempre considera tudo (inclusive zerados)
+ ranking.push({
+   nome:p.nome,
+   vendidos:vendidosProduto,
+   tamanhoTop:tamanhoMaisVendido,
+   qtdTop:maiorQtd
  });
 
- /* MAIS VENDIDA */
+ });
+
+ /* RANKING */
  ranking.sort((a,b)=>b.vendidos-a.vendidos);
 
  if(ranking.length){
  container.innerHTML+=`
  <div style="padding:10px">
- 🔥 Mais vendida: <b>${ranking[0].nome}</b> (${ranking[0].vendidos})
+ 🔥 Mais vendida: <b>${ranking[0].nome}</b> (${ranking[0].vendidos})<br>
+ 🏆 Tamanho mais vendido: ${ranking[0].tamanhoTop} (${ranking[0].qtdTop})
  </div>`;
  }
 
  document.getElementById("investido").innerText=investido.toFixed(2);
  document.getElementById("estoque").innerText=estoque.toFixed(2);
  document.getElementById("lucro").innerText=(vendidoTotal-investido).toFixed(2);
+}
 }
 </script>
 </body>
