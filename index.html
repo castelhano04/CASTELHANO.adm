@@ -1,166 +1,3 @@
-<!DOCTYPE html>
-<html lang="pt-br">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estoque CP10</title>
-
-<style>
-body{
-  margin:0;
-  font-family:Arial;
-  background:#fff7ed;
-}
-
-/* LOGIN */
-#login{
-  max-width:300px;
-  margin:80px auto;
-  background:#ea580c;
-  padding:20px;
-  border-radius:10px;
-  text-align:center;
-  color:white;
-}
-
-#login input{
-  width:100%;
-  padding:8px;
-  border:none;
-  border-radius:6px;
-  margin:10px 0;
-}
-
-/* TOPO */
-.topo{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:10px;
-  background:#ea580c;
-  color:white;
-}
-
-.resumo{
-  display:flex;
-  gap:15px;
-  font-size:14px;
-}
-
-/* TABS */
-.tabs{
-  display:flex;
-  gap:10px;
-  padding:10px;
-}
-
-.tab{
-  padding:8px 15px;
-  background:#e2e8f0;
-  border-radius:8px;
-  cursor:pointer;
-}
-
-.tab.ativo{
-  background:#ea580c;
-  color:white;
-}
-
-/* FORM */
-.form{
-  padding:10px;
-}
-
-input{
-  width:100%;
-  padding:8px;
-  margin:5px 0;
-  border-radius:6px;
-  border:1px solid #ccc;
-}
-
-/* GRID */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
-  gap:10px;
-  padding:10px;
-}
-
-.card{
-  background:white;
-  border-radius:10px;
-  overflow:hidden;
-  box-shadow:0 2px 6px rgba(0,0,0,0.1);
-}
-
-.card img{
-  width:100%;
-  height:140px;
-  object-fit:cover;
-}
-
-.info{
-  padding:8px;
-  font-size:13px;
-}
-
-button{
-  padding:6px;
-  border:none;
-  border-radius:6px;
-  margin-top:5px;
-  cursor:pointer;
-}
-
-.green{background:#22c55e;color:white}
-.red{background:#ef4444;color:white}
-</style>
-</head>
-
-<body>
-
-<!-- LOGIN -->
-<div id="login">
-<h2>ESTOQUE CP10</h2>
-<input type="password" id="senha" placeholder="Senha">
-<button onclick="logar()">Entrar</button>
-</div>
-
-<!-- APP -->
-<div id="app" style="display:none">
-
-<div class="topo">
-  <h3>Estoque</h3>
-  <div class="resumo">
-    <span>Investido: R$ <b id="investido">0</b></span>
-    <span>Estoque: R$ <b id="estoque">0</b></span>
-    <span>Lucro: R$ <b id="lucro">0</b></span>
-  </div>
-</div>
-
-<div class="tabs">
-  <div class="tab ativo" onclick="trocarTab('add')">Adicionar</div>
-  <div class="tab" onclick="trocarTab('lista')">Produtos</div>
-</div>
-
-<!-- ADD -->
-<div id="add" class="form">
-<input type="file" id="foto">
-<input type="text" id="nome" placeholder="Nome">
-<input type="number" id="custo" placeholder="Custo por peça">
-<input type="number" id="valor" placeholder="Valor de venda">
-<input type="text" id="tamanhos" placeholder="P:5,M:3,G:2">
-<button class="green" onclick="addProduto()">Adicionar</button>
-</div>
-
-<!-- LISTA -->
-<div id="lista" style="display:none">
-<div class="grid" id="produtos"></div>
-</div>
-
-</div>
-
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
@@ -171,12 +8,11 @@ const app = initializeApp({
  projectId:"estoque-app-13f1d"
 });
 
-const db = getFirestore(app);
+const db=getFirestore(app);
 
-let produtos = [];
+let produtos=[];
 
-/* LOGIN */
-window.logar = function(){
+window.logar=function(){
  if(document.getElementById("senha").value==="161004"){
    document.getElementById("login").style.display="none";
    document.getElementById("app").style.display="block";
@@ -184,8 +20,7 @@ window.logar = function(){
  } else alert("Senha errada");
 }
 
-/* TABS */
-window.trocarTab = function(tab){
+window.trocarTab=function(tab){
  document.getElementById("add").style.display="none";
  document.getElementById("lista").style.display="none";
 
@@ -200,33 +35,30 @@ window.trocarTab = function(tab){
  }
 }
 
-/* BASE64 */
 function base64(file){
  return new Promise(r=>{
-  let reader=new FileReader();
-  reader.onload=()=>r(reader.result);
-  reader.readAsDataURL(file);
+ let reader=new FileReader();
+ reader.onload=()=>r(reader.result);
+ reader.readAsDataURL(file);
  });
 }
 
-/* TAMANHOS */
 function parseTam(str){
  let obj={};
  if(!str) return obj;
 
  str.split(',').forEach(p=>{
-  let [t,q]=p.split(':');
-  if(t && q) obj[t.trim()]={total:+q,vendido:0};
+   let [t,q]=p.split(':');
+   if(t && q) obj[t.trim()]={total:+q,vendido:0};
  });
 
  return obj;
 }
 
-/* ADD */
-window.addProduto = async ()=>{
+window.addProduto=async()=>{
  if(!nome.value || !valor.value || !custo.value || !tamanhos.value){
-  alert("Preencha tudo");
-  return;
+   alert("Preencha tudo");
+   return;
  }
 
  let file=foto.files[0];
@@ -239,18 +71,17 @@ window.addProduto = async ()=>{
  let custoTotal=(Number(custo.value)||0)*total;
 
  await addDoc(collection(db,"produtos"),{
-  nome:nome.value,
-  valor:Number(valor.value)||0,
-  custo:custoTotal,
-  tamanhos:tam,
-  img
+   nome:nome.value,
+   valor:Number(valor.value)||0,
+   custo:custoTotal,
+   tamanhos:tam,
+   img
  });
 
  carregar();
 }
 
-/* EDITAR */
-window.editarProduto = async(id)=>{
+window.editarProduto=async(id)=>{
  let p=produtos.find(x=>x.id===id);
  if(!p) return;
 
@@ -258,26 +89,22 @@ window.editarProduto = async(id)=>{
  let valorN=prompt("Valor",p.valor);
 
  await updateDoc(doc(db,"produtos",id),{
-  nome:nomeN,
-  valor:+valorN
+   nome:nomeN,
+   valor:+valorN
  });
 
  carregar();
 }
 
-/* EXCLUIR */
-window.excluirProduto = async(id)=>{
+window.excluirProduto=async(id)=>{
  if(!confirm("Excluir?")) return;
  await deleteDoc(doc(db,"produtos",id));
  carregar();
 }
 
-/* VENDER */
-window.vender = async(id,tam)=>{
+window.vender=async(id,tam)=>{
  let p=produtos.find(x=>x.id===id);
  if(!p) return;
-
- if(!p.tamanhos) p.tamanhos={};
 
  let t=p.tamanhos[tam];
  if(t.vendido>=t.total) return alert("Sem estoque");
@@ -285,13 +112,12 @@ window.vender = async(id,tam)=>{
  t.vendido++;
 
  await updateDoc(doc(db,"produtos",id),{
-  tamanhos:p.tamanhos
+   tamanhos:p.tamanhos
  });
 
  carregar();
 }
 
-/* CARREGAR */
 async function carregar(){
  let snap=await getDocs(collection(db,"produtos"));
  produtos=[];
@@ -299,7 +125,6 @@ async function carregar(){
  render();
 }
 
-/* RENDER */
 function render(){
  let container=document.getElementById("produtos");
  container.innerHTML="";
@@ -307,43 +132,43 @@ function render(){
  let investido=0,estoque=0,vendidoTotal=0;
 
  produtos.forEach(p=>{
-
- if(!p.tamanhos) p.tamanhos={};
-
- let tHTML="";
+ let vendidosProduto=0;
  let estoqueProduto=0;
+ let tHTML="";
 
  for(let t in p.tamanhos){
-  let d=p.tamanhos[t];
-  let rest=d.total-d.vendido;
+   let d=p.tamanhos[t];
+   let rest=d.total-d.vendido;
 
-  let valorUnit=Number(p.valor)||0;
+   let valorUnit=Number(p.valor)||0;
 
-  vendidoTotal+=d.vendido*valorUnit;
-  estoque+=rest*valorUnit;
-  estoqueProduto+=rest;
+   vendidosProduto+=d.vendido;
+   vendidoTotal+=d.vendido*valorUnit;
+   estoque+=rest*valorUnit;
 
-  tHTML+=`
-  <div>
-    ${t}: ${rest}
-    <button onclick="vender('${p.id}','${t}')">+</button>
-  </div>`;
+   estoqueProduto+=rest;
+
+   tHTML+=`
+   <div>
+     ${t}: ${rest}
+     <button onclick="vender('${p.id}','${t}')">+</button>
+   </div>`;
  }
 
  investido+=Number(p.custo)||0;
 
  if(estoqueProduto>0){
-  container.innerHTML+=`
-  <div class="card">
-    <img src="${p.img}">
-    <div class="info">
-      <b>${p.nome}</b><br>
-      R$ ${p.valor}<br>
-      ${tHTML}
-      <button onclick="editarProduto('${p.id}')">Editar</button>
-      <button class="red" onclick="excluirProduto('${p.id}')">Excluir</button>
-    </div>
-  </div>`;
+   container.innerHTML+=`
+   <div class="card">
+     <img src="${p.img}">
+     <div class="info">
+       <b>${p.nome}</b><br>
+       R$ ${p.valor}<br>
+       ${tHTML}
+       <button onclick="editarProduto('${p.id}')">Editar</button>
+       <button class="red" onclick="excluirProduto('${p.id}')">Excluir</button>
+     </div>
+   </div>`;
  }
 
  });
@@ -353,6 +178,3 @@ function render(){
  document.getElementById("lucro").innerText=(vendidoTotal-investido).toFixed(2);
 }
 </script>
-
-</body>
-</html>
