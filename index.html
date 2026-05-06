@@ -220,10 +220,13 @@ function base64(file){
 /* TAMANHOS */
 function parseTam(str){
  let obj={};
+ if(!str) return obj;
+
  str.split(',').forEach(p=>{
- let [t,q]=p.split(':');
- if(t&&q)obj[t.trim()]={total:+q,vendido:0};
+   let [t,q]=p.split(':');
+   if(t && q) obj[t.trim()]={total:+q,vendido:0};
  });
+
  return obj;
 }
 
@@ -315,7 +318,9 @@ function render(){
 
  let vendidosProduto=0;
  let tHTML="";
-
+   
+if(!p.tamanhos) p.tamanhos = {};
+   
  for(let t in p.tamanhos){
    let d=p.tamanhos[t];
    let rest=d.total-d.vendido;
