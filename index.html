@@ -616,30 +616,30 @@ for(let t in produto.tamanhos){
 
     historico.innerHTML += `
 
-    <div class="rank-item">
+<div class="rank-item">
 
-      <b>${item.nome}</b><br>
+  <b>${item.nome}</b><br>
 
-      Total vendido: ${item.vendidos}<br><br>
+  Total vendido: ${item.vendidos}<br><br>
 
-      ${detalhes}
+  ${detalhes}
 
-      <div class="botoes">
+  <div class="botoes">
 
-        <button class="edit"
-        onclick="editarProduto('${item.id}')">
-        Editar
-        </button>
+    <button class="edit"
+    onclick="editarProduto('${item.id}')">
+    Editar
+    </button>
 
-        <button class="delete"
-        onclick="excluirProduto('${item.id}')">
-        Excluir
-        </button>
+    <button class="delete"
+    onclick="excluirProduto('${item.id}')">
+    Excluir
+    </button>
 
-      </div>
+  </div>
 
-    </div>`;
-  });
+</div>`;
+});
 
   // ATUALIZA RESUMO
   document.getElementById('investido').innerText =
