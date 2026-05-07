@@ -550,7 +550,9 @@ for(let t in produto.tamanhos){
     }
 
     // INVESTIMENTO TOTAL
-    investido += totalPecasProduto * produto.custo;
+    investido += restante * produto.valor;
+
+estoque += totalPecasProduto * produto.custo;
 
     // MOSTRAR SOMENTE SE TIVER ESTOQUE
     if(estoqueProduto > 0){
