@@ -5,6 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CP10 SPORTS</title>
 
+  <link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff6b00">
+
 <style>
 *{
   margin:0;
@@ -149,22 +152,23 @@ body{
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-  gap:15px;
-  padding:15px;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:12px;
+  padding:10px;
 }
 
 .card{
-  background:#161616;
-  border-radius:18px;
+  background:#111;
+  border:1px solid #222;
+  border-radius:12px;
   overflow:hidden;
-  border:1px solid #2a2a2a;
 }
 
 .card img{
   width:100%;
-  height:220px;
+  height:180px; /* DIMINUI A FOTO */
   object-fit:cover;
+  display:block;
 }
 
 .info{
@@ -308,22 +312,67 @@ body{
 
 </div>
 
-<script>
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  getDocs,
+  updateDoc,
+  deleteDoc,
+  doc
+} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyD4TfY6Iwrju_aaG1vpN-q1Z9LyiDBeQvQ",
+  authDomain: "estoque-app-13f1d.firebaseapp.com",
+  projectId: "estoque-app-13f1d",
+  storageBucket: "estoque-app-13f1d.firebasestorage.app",
+  messagingSenderId: "193095930583",
+  appId: "1:193095930583:web:88587ee9f4e10076619692",
+  measurementId: "G-Y99TQTKNRG"
+};
+
+
+const appFirebase = initializeApp(firebaseConfig);
+const db = getFirestore(appFirebase);
+
 let produtos = [];
 
-function logar(){
+  window.logar = function(){
+
   let senha = document.getElementById('senha').value;
 
   if(senha === '161004'){
+
     document.getElementById('login').style.display = 'none';
     document.getElementById('app').style.display = 'block';
-    render();
+
+    carregar();
+
   }else{
     alert('Senha incorreta');
   }
 }
 
-function trocarTab(tab){
+async function carregar(){
+
+  let snap = await getDocs(collection(db,"produtos"));
+
+  produtos = [];
+
+  snap.forEach(docu=>{
+    produtos.push({
+      id:docu.id,
+      ...docu.data()
+    });
+  });
+
+  render();
+}
+
+window.trocarTab = function(tab){
   document.getElementById('add').style.display = 'none';
   document.getElementById('produtos').style.display = 'none';
 
@@ -361,7 +410,8 @@ function parseTam(str){
   return obj;
 }
 
-async function addProduto(){
+window.addProduto = async function(){
+
   const file = document.getElementById('foto').files[0];
   const nome = document.getElementById('nome').value;
   const custo = Number(document.getElementById('custo').value);
@@ -375,8 +425,7 @@ async function addProduto(){
 
   const img = await converterBase64(file);
 
-  produtos.unshift({
-    id:Date.now(),
+  await addDoc(collection(db,"produtos"),{
     nome,
     custo,
     valor,
@@ -384,10 +433,10 @@ async function addProduto(){
     tamanhos:parseTam(tamanhos)
   });
 
-  render();
+  carregar();
 }
-
-function vender(id,tamanho){
+  
+window.vender = async function(id,tamanho){
   let produto = produtos.find(p=>p.id === id);
 
   if(!produto) return;
@@ -397,21 +446,28 @@ function vender(id,tamanho){
   if(t.vendido >= t.total){
     alert('Sem estoque');
     return;
-  }
+   }
 
   t.vendido++;
 
-  render();
-}
+ await updateDoc(doc(db,"produtos",id),{
+  tamanhos:produto.tamanhos
+});
 
-function excluirProduto(id){
+carregar();
+ }
+
+window.excluirProduto = async function(id){
+
   if(confirm('Deseja excluir?')){
-    produtos = produtos.filter(p=>p.id !== id);
-    render();
+
+    await deleteDoc(doc(db,"produtos",id));
+
+    carregar();
   }
 }
 
-function editarProduto(id){
+window.editarProduto = async function(id){
   let produto = produtos.find(p=>p.id === id);
 
   if(!produto) return;
@@ -419,10 +475,15 @@ function editarProduto(id){
   let novoNome = prompt('Novo nome', produto.nome);
   let novoValor = prompt('Novo valor', produto.valor);
 
-  produto.nome = novoNome;
-  produto.valor = Number(novoValor);
+  if(novoNome) produto.nome = novoNome;
+  if(novoValor) produto.valor = Number(novoValor);
 
-  render();
+ await updateDoc(doc(db,"produtos",id),{
+  nome:produto.nome,
+  valor:produto.valor
+});
+
+carregar();
 }
 
 function render(){
@@ -457,7 +518,7 @@ function render(){
       htmlTam += `
       <div class="tamanho">
         <span>${t}: ${restante} restantes</span>
-        <button class="btn-vender" onclick="vender(${produto.id},'${t}')">+</button>
+        <button class="btn-vender" onclick="vender('${produto.id}','${t}')">+</button>
       </div>`;
     }
 
@@ -475,8 +536,8 @@ function render(){
           ${htmlTam}
 
           <div class="botoes">
-            <button class="edit" onclick="editarProduto(${produto.id})">Editar</button>
-            <button class="delete" onclick="excluirProduto(${produto.id})">Excluir</button>
+            <button class="edit" onclick="editarProduto('${produto.id}')">Editar</button>
+            <button class="delete" onclick="excluirProduto('${produto.id}')">Excluir</button>
           </div>
         </div>
       </div>`;
@@ -511,6 +572,11 @@ function render(){
   document.getElementById('lucro').innerText = (vendidoTotal - investido).toFixed(2);
 }
 </script>
-
+<script>
+if("serviceWorker" in navigator){
+ navigator.serviceWorker.register("./sw.js");
+}
+</script>
+  
 </body>
 </html>
