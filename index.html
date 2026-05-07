@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>CP10 SPORTS</title>
 
-  <link rel="manifest" href="manifest.json">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#ff6b00">
 
 <style>
@@ -21,7 +21,6 @@ body{
   color:white;
 }
 
-/* LOGIN */
 #login{
   width:100%;
   height:100vh;
@@ -67,7 +66,6 @@ body{
   cursor:pointer;
 }
 
-/* APP */
 #app{
   display:none;
 }
@@ -166,7 +164,7 @@ body{
 
 .card img{
   width:100%;
-  height:180px; /* DIMINUI A FOTO */
+  height:180px;
   object-fit:cover;
   display:block;
 }
@@ -313,7 +311,8 @@ body{
 </div>
 
 <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
   getFirestore,
@@ -324,6 +323,7 @@ import {
   deleteDoc,
   doc
 } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
 const firebaseConfig = {
   apiKey: "AIzaSyD4TfY6Iwrju_aaG1vpN-q1Z9LyiDBeQvQ",
   authDomain: "estoque-app-13f1d.firebaseapp.com",
@@ -334,13 +334,12 @@ const firebaseConfig = {
   measurementId: "G-Y99TQTKNRG"
 };
 
-
 const appFirebase = initializeApp(firebaseConfig);
 const db = getFirestore(appFirebase);
 
 let produtos = [];
 
-  window.logar = function(){
+window.logar = function(){
 
   let senha = document.getElementById('senha').value;
 
@@ -373,10 +372,13 @@ async function carregar(){
 }
 
 window.trocarTab = function(tab){
+
   document.getElementById('add').style.display = 'none';
   document.getElementById('produtos').style.display = 'none';
 
-  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('ativo'));
+  document.querySelectorAll('.tab').forEach(t=>{
+    t.classList.remove('ativo');
+  });
 
   if(tab === 'add'){
     document.getElementById('add').style.display = 'block';
@@ -396,9 +398,11 @@ function converterBase64(file){
 }
 
 function parseTam(str){
+
   let obj = {};
 
   str.split(',').forEach(item=>{
+
     let [tam,qtd] = item.split(':');
 
     obj[tam.trim()] = {
@@ -435,8 +439,9 @@ window.addProduto = async function(){
 
   carregar();
 }
-  
+
 window.vender = async function(id,tamanho){
+
   let produto = produtos.find(p=>p.id === id);
 
   if(!produto) return;
@@ -446,16 +451,16 @@ window.vender = async function(id,tamanho){
   if(t.vendido >= t.total){
     alert('Sem estoque');
     return;
-   }
+  }
 
   t.vendido++;
 
- await updateDoc(doc(db,"produtos",id),{
-  tamanhos:produto.tamanhos
-});
+  await updateDoc(doc(db,"produtos",id),{
+    tamanhos:produto.tamanhos
+  });
 
-carregar();
- }
+  carregar();
+}
 
 window.excluirProduto = async function(id){
 
@@ -468,6 +473,7 @@ window.excluirProduto = async function(id){
 }
 
 window.editarProduto = async function(id){
+
   let produto = produtos.find(p=>p.id === id);
 
   if(!produto) return;
@@ -478,15 +484,16 @@ window.editarProduto = async function(id){
   if(novoNome) produto.nome = novoNome;
   if(novoValor) produto.valor = Number(novoValor);
 
- await updateDoc(doc(db,"produtos",id),{
-  nome:produto.nome,
-  valor:produto.valor
-});
+  await updateDoc(doc(db,"produtos",id),{
+    nome:produto.nome,
+    valor:produto.valor
+  });
 
-carregar();
+  carregar();
 }
 
 function render(){
+
   const lista = document.getElementById('listaProdutos');
   const historico = document.getElementById('historico');
 
@@ -496,7 +503,6 @@ function render(){
   let investido = 0;
   let estoque = 0;
   let vendidoTotal = 0;
-  let totalPecas = 0;
 
   let ranking = [];
 
@@ -505,97 +511,140 @@ function render(){
     let htmlTam = '';
     let vendidosProduto = 0;
     let estoqueProduto = 0;
+    let totalPecas = 0;
 
     for(let t in produto.tamanhos){
+
       let dados = produto.tamanhos[t];
+
       let restante = dados.total - dados.vendido;
+
       totalPecas += dados.total;
 
       vendidosProduto += dados.vendido;
+
       estoqueProduto += restante;
 
       vendidoTotal += dados.vendido * produto.valor;
+
       estoque += restante * produto.valor;
 
       htmlTam += `
       <div class="tamanho">
         <span>${t}: ${restante} restantes</span>
-        <button class="btn-vender" onclick="vender('${produto.id}','${t}')">+</button>
+
+        <button class="btn-vender"
+        onclick="vender('${produto.id}','${t}')">
+        +
+        </button>
+
       </div>`;
     }
 
     investido += totalPecas * produto.custo;
 
     if(estoqueProduto > 0){
+
       lista.innerHTML += `
       <div class="card">
+
         <img src="${produto.img}">
 
         <div class="info">
+
           <div class="nome">${produto.nome}</div>
-          <div class="preco">R$ ${produto.valor}</div>
+
+          <div class="preco">
+            R$ ${produto.valor}
+          </div>
 
           ${htmlTam}
 
           <div class="botoes">
-            <button class="edit" onclick="editarProduto('${produto.id}')">Editar</button>
-            <button class="delete" onclick="excluirProduto('${produto.id}')">Excluir</button>
-         
+
+            <button class="edit"
+            onclick="editarProduto('${produto.id}')">
+            Editar
+            </button>
+
+            <button class="delete"
+            onclick="excluirProduto('${produto.id}')">
+            Excluir
+            </button>
+
           </div>
-          
+
+        </div>
+
       </div>`;
     }
 
     ranking.push({
+      id:produto.id,
       nome:produto.nome,
       vendidos:vendidosProduto,
       tamanhos:produto.tamanhos
     });
+
   });
 
   ranking.sort((a,b)=>b.vendidos-a.vendidos);
 
   ranking.forEach(item=>{
+
     let detalhes = '';
 
     for(let t in item.tamanhos){
-      detalhes += `${t}: ${item.tamanhos[t].vendido} vendidos<br>`;
+
+      detalhes += `
+      ${t}: ${item.tamanhos[t].vendido} vendidos<br>
+      `;
     }
 
     historico.innerHTML += `
-<div class="rank-item">
 
-  <b>${item.nome}</b><br>
-  Total vendido: ${item.vendidos}<br><br>
+    <div class="rank-item">
 
-  ${detalhes}
+      <b>${item.nome}</b><br>
 
-  <div class="botoes">
+      Total vendido: ${item.vendidos}<br><br>
 
-    <button class="edit"
-    onclick="editarProduto('${produtos.find(p=>p.nome===item.nome).id}')">
-    Editar
-    </button>
+      ${detalhes}
 
-    <button class="delete"
-    onclick="excluirProduto('${produtos.find(p=>p.nome===item.nome).id}')">
-    Excluir
-    </button>
+      <div class="botoes">
 
-  </div>
+        <button class="edit"
+        onclick="editarProduto('${item.id}')">
+        Editar
+        </button>
 
-</div>`;
+        <button class="delete"
+        onclick="excluirProduto('${item.id}')">
+        Excluir
+        </button>
 
-  document.getElementById('investido').innerText = investido.toFixed(2);
-  document.getElementById('estoque').innerText = estoque.toFixed(2);
-  document.getElementById('lucro').innerText = (vendidoTotal - investido).toFixed(2);
+      </div>
+
+    </div>`;
+  });
+
+  document.getElementById('investido').innerText =
+  investido.toFixed(2);
+
+  document.getElementById('estoque').innerText =
+  estoque.toFixed(2);
+
+  document.getElementById('lucro').innerText =
+  (vendidoTotal - investido).toFixed(2);
 }
+
 </script>
+
 <script>
 if("serviceWorker" in navigator){
- navigator.serviceWorker.register("./sw.js");
+  navigator.serviceWorker.register("./sw.js");
 }
 </script>
-  
+
 </body>
 </html>
