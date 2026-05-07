@@ -277,7 +277,12 @@ body{
   Investido<br>
   <b>R$ <span id="investido">0</span></b>
 </div>
-
+    
+<div class="box">
+  Vendido<br>
+  <b>R$ <span id="vendido">0</span></b>
+</div>
+    
     <div class="box">
       Lucro<br>
       <b>R$ <span id="lucro">0</span></b>
@@ -503,7 +508,6 @@ function render(){
   let investido = 0;
   let estoque = 0;
   let vendidoTotal = 0;
-  let custoVendido = 0;
 
   let ranking = [];
 
@@ -528,9 +532,7 @@ for(let t in produto.tamanhos){
       // TOTAL VENDIDO
       vendidoTotal += dados.vendido * produto.valor;
 
-      // CUSTO DOS ITENS VENDIDOS
-      custoVendido += dados.vendido * produto.custo;
-
+     
       // VALOR EM ESTOQUE
       estoque += restante * produto.valor;
 
@@ -643,13 +645,16 @@ for(let t in produto.tamanhos){
 
   // ATUALIZA RESUMO
   document.getElementById('investido').innerText =
-  investido.toFixed(2);
+investido.toFixed(2);
 
-  document.getElementById('estoque').innerText =
-  estoque.toFixed(2);
+document.getElementById('estoque').innerText =
+estoque.toFixed(2);
 
-  document.getElementById('lucro').innerText =
-  (vendidoTotal - custoVendido).toFixed(2);
+document.getElementById('vendido').innerText =
+vendidoTotal.toFixed(2);
+
+document.getElementById('lucro').innerText =
+(vendidoTotal - investido).toFixed(2);
 }
 </script>
 
