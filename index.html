@@ -562,12 +562,28 @@ function render(){
     }
 
     historico.innerHTML += `
-    <div class="rank-item">
-      <b>${item.nome}</b><br>
-      Total vendido: ${item.vendidos}<br><br>
-      ${detalhes}
-    </div>`;
-  });
+<div class="rank-item">
+
+  <b>${item.nome}</b><br>
+  Total vendido: ${item.vendidos}<br><br>
+
+  ${detalhes}
+
+  <div class="botoes">
+
+    <button class="edit"
+    onclick="editarProduto('${produtos.find(p=>p.nome===item.nome).id}')">
+    Editar
+    </button>
+
+    <button class="delete"
+    onclick="excluirProduto('${produtos.find(p=>p.nome===item.nome).id}')">
+    Excluir
+    </button>
+
+  </div>
+
+</div>`;
 
   document.getElementById('investido').innerText = investido.toFixed(2);
   document.getElementById('estoque').innerText = estoque.toFixed(2);
