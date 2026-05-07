@@ -512,16 +512,15 @@ function render(){
     let htmlTam = '';
     let vendidosProduto = 0;
     let estoqueProduto = 0;
-    let totalPecas = 0;
+   let totalPecasProduto = 0;
 
-    for(let t in produto.tamanhos){
+for(let t in produto.tamanhos){
 
-      let dados = produto.tamanhos[t];
+  let dados = produto.tamanhos[t];
 
-      let restante = dados.total - dados.vendido;
+  let restante = dados.total - dados.vendido;
 
-      totalPecas += dados.total;
-
+  totalPecasProduto += dados.total;
       vendidosProduto += dados.vendido;
 
       estoqueProduto += restante;
@@ -551,7 +550,7 @@ function render(){
     }
 
     // INVESTIMENTO TOTAL
-    investido += totalPecas * produto.custo;
+    investido += totalPecasProduto * produto.custo;
 
     // MOSTRAR SOMENTE SE TIVER ESTOQUE
     if(estoqueProduto > 0){
