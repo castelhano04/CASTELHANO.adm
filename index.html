@@ -496,6 +496,7 @@ function render(){
   let investido = 0;
   let estoque = 0;
   let vendidoTotal = 0;
+  let totalPecas = 0;
 
   let ranking = [];
 
@@ -508,6 +509,7 @@ function render(){
     for(let t in produto.tamanhos){
       let dados = produto.tamanhos[t];
       let restante = dados.total - dados.vendido;
+      totalPecas += dados.total;
 
       vendidosProduto += dados.vendido;
       estoqueProduto += restante;
@@ -522,7 +524,7 @@ function render(){
       </div>`;
     }
 
-    investido += produto.custo;
+    investido += totalPecas * produto.custo;
 
     if(estoqueProduto > 0){
       lista.innerHTML += `
