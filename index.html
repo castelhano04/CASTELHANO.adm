@@ -3,322 +3,512 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Estoque CP10</title>
+<title>CP10 SPORTS</title>
 
 <style>
-body{
+*{
   margin:0;
+  padding:0;
+  box-sizing:border-box;
   font-family:Arial;
-  background:#fff7ed;
 }
 
-#login{
-  max-width:300px;
-  margin:80px auto;
-  background:#ea580c;
-  padding:20px;
-  border-radius:10px;
-  text-align:center;
+body{
+  background:#0f0f0f;
   color:white;
 }
 
-#login input{
+/* LOGIN */
+#login{
   width:100%;
-  padding:8px;
+  height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:linear-gradient(135deg,#000,#ea580c);
+}
+
+.login-box{
+  width:320px;
+  background:#111;
+  border:2px solid #ea580c;
+  border-radius:20px;
+  padding:30px;
+  text-align:center;
+  box-shadow:0 0 20px rgba(234,88,12,.4);
+}
+
+.login-box h1{
+  color:#ea580c;
+  margin-bottom:25px;
+}
+
+.login-box input{
+  width:100%;
+  padding:12px;
   border:none;
-  border-radius:6px;
-  margin:10px 0;
+  border-radius:10px;
+  margin-bottom:15px;
+  background:#1e1e1e;
+  color:white;
+}
+
+.login-box button{
+  width:100%;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#ea580c;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+/* APP */
+#app{
+  display:none;
 }
 
 .topo{
-  display:flex;
-  justify-content:space-between;
-  padding:10px;
-  background:#ea580c;
-  color:white;
+  background:#111;
+  padding:15px;
+  border-bottom:2px solid #ea580c;
+  position:sticky;
+  top:0;
+  z-index:100;
+}
+
+.logo{
+  color:#ea580c;
+  font-size:28px;
+  font-weight:bold;
 }
 
 .resumo{
-  display:flex;
-  gap:15px;
-  font-size:14px;
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:10px;
+  margin-top:15px;
+}
+
+.box{
+  background:#1b1b1b;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #2a2a2a;
+}
+
+.box b{
+  color:#ea580c;
 }
 
 .tabs{
   display:flex;
   gap:10px;
-  padding:10px;
+  padding:15px;
 }
 
 .tab{
-  padding:8px 15px;
-  background:#e2e8f0;
-  border-radius:8px;
+  flex:1;
+  text-align:center;
+  background:#1b1b1b;
+  padding:12px;
+  border-radius:10px;
   cursor:pointer;
+  border:1px solid #2a2a2a;
 }
 
 .tab.ativo{
   background:#ea580c;
+}
+
+.form{
+  padding:15px;
+}
+
+.form input{
+  width:100%;
+  padding:12px;
+  margin-bottom:10px;
+  border:none;
+  border-radius:10px;
+  background:#1b1b1b;
   color:white;
 }
 
-.form{padding:10px;}
-
-input{
+.form button{
   width:100%;
-  padding:8px;
-  margin:5px 0;
-  border-radius:6px;
-  border:1px solid #ccc;
+  padding:12px;
+  border:none;
+  border-radius:10px;
+  background:#ea580c;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
 }
 
 .grid{
   display:grid;
-  grid-template-columns:repeat(auto-fill,minmax(180px,1fr));
-  gap:10px;
-  padding:10px;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:15px;
+  padding:15px;
 }
 
 .card{
-  background:white;
-  border-radius:10px;
+  background:#161616;
+  border-radius:18px;
   overflow:hidden;
-  box-shadow:0 2px 6px rgba(0,0,0,0.1);
+  border:1px solid #2a2a2a;
 }
 
 .card img{
   width:100%;
-  height:140px;
+  height:220px;
   object-fit:cover;
 }
 
-.info{padding:8px;font-size:13px;}
+.info{
+  padding:15px;
+}
 
-button{
-  padding:6px;
+.nome{
+  font-size:20px;
+  font-weight:bold;
+  margin-bottom:8px;
+}
+
+.preco{
+  color:#22c55e;
+  font-size:18px;
+  margin-bottom:10px;
+}
+
+.tamanho{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  background:#1f1f1f;
+  padding:8px;
+  border-radius:8px;
+  margin-bottom:8px;
+}
+
+.btn-vender{
+  background:#22c55e;
   border:none;
-  border-radius:6px;
-  margin-top:5px;
+  color:white;
+  width:30px;
+  height:30px;
+  border-radius:50%;
   cursor:pointer;
 }
 
-.green{background:#22c55e;color:white}
-.red{background:#ef4444;color:white}
+.botoes{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+}
 
-.destaque{
-  background:#ea580c;
+.edit{
+  flex:1;
+  background:#3b82f6;
+  border:none;
   color:white;
-  margin:10px;
-  padding:15px;
+  padding:10px;
   border-radius:10px;
+  cursor:pointer;
+}
+
+.delete{
+  flex:1;
+  background:#ef4444;
+  border:none;
+  color:white;
+  padding:10px;
+  border-radius:10px;
+  cursor:pointer;
+}
+
+.ranking{
+  margin:15px;
+  background:#161616;
+  border-radius:20px;
+  padding:20px;
+  border:1px solid #2a2a2a;
+}
+
+.ranking h2{
+  color:#ea580c;
+  margin-bottom:15px;
+}
+
+.rank-item{
+  background:#1f1f1f;
+  border-radius:12px;
+  padding:12px;
+  margin-bottom:10px;
 }
 </style>
 </head>
-
 <body>
 
 <div id="login">
-<h2>ESTOQUE CP10</h2>
-<input type="password" id="senha">
-<button onclick="logar()">Entrar</button>
+  <div class="login-box">
+    <h1>CP10 SPORTS</h1>
+    <input type="password" id="senha" placeholder="Digite sua senha">
+    <button onclick="logar()">ENTRAR</button>
+  </div>
 </div>
 
-<div id="app" style="display:none">
+<div id="app">
 
 <div class="topo">
-  <h3>Estoque</h3>
+  <div class="logo">CP10 SPORTS</div>
+
   <div class="resumo">
-    <span>Investido: R$ <b id="investido">0</b></span>
-    <span>Estoque: R$ <b id="estoque">0</b></span>
-    <span>Lucro: R$ <b id="lucro">0</b></span>
+    <div class="box">
+      Investido<br>
+      <b>R$ <span id="investido">0</span></b>
+    </div>
+
+    <div class="box">
+      Em estoque<br>
+      <b>R$ <span id="estoque">0</span></b>
+    </div>
+
+    <div class="box">
+      Lucro<br>
+      <b>R$ <span id="lucro">0</span></b>
+    </div>
   </div>
 </div>
 
 <div class="tabs">
   <div class="tab ativo" onclick="trocarTab('add')">Adicionar</div>
-  <div class="tab" onclick="trocarTab('lista')">Produtos</div>
+  <div class="tab" onclick="trocarTab('produtos')">Produtos</div>
 </div>
 
 <div id="add" class="form">
-<input type="file" id="foto">
-<input id="nome" placeholder="Nome">
-<input id="custo" type="number" placeholder="Custo">
-<input id="valor" type="number" placeholder="Venda">
-<input id="tamanhos" placeholder="P:5,M:3,G:2">
-<button class="green" onclick="addProduto()">Adicionar</button>
+  <input type="file" id="foto">
+  <input type="text" id="nome" placeholder="Nome da camisa">
+  <input type="number" id="custo" placeholder="Valor pago por peça">
+  <input type="number" id="valor" placeholder="Valor de venda">
+  <input type="text" id="tamanhos" placeholder="P:5,M:3,G:2">
+  <button onclick="addProduto()">Adicionar Produto</button>
 </div>
 
-<div id="lista" style="display:none">
-<div class="grid" id="produtos"></div>
+<div id="produtos" style="display:none">
+  <div class="grid" id="listaProdutos"></div>
+
+  <div class="ranking">
+    <h2>🔥 Histórico de Vendas</h2>
+    <div id="historico"></div>
+  </div>
 </div>
 
 </div>
 
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, updateDoc, doc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+<script>
+let produtos = [];
 
-const app = initializeApp({
- apiKey:"AIzaSyD4TfY6Iwrju_aaG1vpN-q1Z9LyiDBeQvQ",
- authDomain:"estoque-app-13f1d.firebaseapp.com",
- projectId:"estoque-app-13f1d"
-});
+function logar(){
+  let senha = document.getElementById('senha').value;
 
-const db=getFirestore(app);
-
-let produtos=[];
-
-window.logar=()=>{
- if(senha.value==="161004"){
-   login.style.display="none";
-   app.style.display="block";
-   carregar();
- } else alert("Senha errada");
+  if(senha === '161004'){
+    document.getElementById('login').style.display = 'none';
+    document.getElementById('app').style.display = 'block';
+    render();
+  }else{
+    alert('Senha incorreta');
+  }
 }
 
-window.trocarTab=(t)=>{
- add.style.display="none";
- lista.style.display="none";
- document.querySelectorAll('.tab').forEach(x=>x.classList.remove('ativo'));
+function trocarTab(tab){
+  document.getElementById('add').style.display = 'none';
+  document.getElementById('produtos').style.display = 'none';
 
- if(t==="add"){add.style.display="block";document.querySelectorAll('.tab')[0].classList.add('ativo')}
- else{lista.style.display="block";document.querySelectorAll('.tab')[1].classList.add('ativo')}
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('ativo'));
+
+  if(tab === 'add'){
+    document.getElementById('add').style.display = 'block';
+    document.querySelectorAll('.tab')[0].classList.add('ativo');
+  }else{
+    document.getElementById('produtos').style.display = 'block';
+    document.querySelectorAll('.tab')[1].classList.add('ativo');
+  }
+}
+
+function converterBase64(file){
+  return new Promise((resolve)=>{
+    const reader = new FileReader();
+    reader.onload = ()=>resolve(reader.result);
+    reader.readAsDataURL(file);
+  });
 }
 
 function parseTam(str){
- let o={};
- str.split(',').forEach(p=>{
-   let[t,q]=p.split(':');
-   if(t&&q)o[t.trim()]={total:+q,vendido:0};
- });
- return o;
+  let obj = {};
+
+  str.split(',').forEach(item=>{
+    let [tam,qtd] = item.split(':');
+
+    obj[tam.trim()] = {
+      total:Number(qtd),
+      vendido:0
+    };
+  });
+
+  return obj;
 }
 
-window.addProduto=async()=>{
- if(!nome.value||!valor.value||!custo.value||!tamanhos.value) return alert("Preencha tudo");
+async function addProduto(){
+  const file = document.getElementById('foto').files[0];
+  const nome = document.getElementById('nome').value;
+  const custo = Number(document.getElementById('custo').value);
+  const valor = Number(document.getElementById('valor').value);
+  const tamanhos = document.getElementById('tamanhos').value;
 
- let img=await new Promise(r=>{
-   let f=new FileReader();
-   f.onload=()=>r(f.result);
-   f.readAsDataURL(foto.files[0]);
- });
+  if(!file || !nome || !custo || !valor || !tamanhos){
+    alert('Preencha tudo');
+    return;
+  }
 
- let tam=parseTam(tamanhos.value);
- let total=Object.values(tam).reduce((a,b)=>a+b.total,0);
+  const img = await converterBase64(file);
 
- await addDoc(collection(db,"produtos"),{
-   nome:nome.value,
-   valor:+valor.value,
-   custo:+custo.value*total,
-   tamanhos:tam,
-   img
- });
+  produtos.unshift({
+    id:Date.now(),
+    nome,
+    custo,
+    valor,
+    img,
+    tamanhos:parseTam(tamanhos)
+  });
 
- carregar();
+  render();
 }
 
-window.editarProduto=async(id)=>{
- let p=produtos.find(x=>x.id===id);
- let nomeN=prompt("Nome",p.nome);
- let valorN=prompt("Valor",p.valor);
+function vender(id,tamanho){
+  let produto = produtos.find(p=>p.id === id);
 
- await updateDoc(doc(db,"produtos",id),{nome:nomeN,valor:+valorN});
- carregar();
+  if(!produto) return;
+
+  let t = produto.tamanhos[tamanho];
+
+  if(t.vendido >= t.total){
+    alert('Sem estoque');
+    return;
+  }
+
+  t.vendido++;
+
+  render();
 }
 
-window.excluirProduto=async(id)=>{
- if(confirm("Excluir produto?")){
-   await deleteDoc(doc(db,"produtos",id));
-   carregar();
- }
+function excluirProduto(id){
+  if(confirm('Deseja excluir?')){
+    produtos = produtos.filter(p=>p.id !== id);
+    render();
+  }
 }
 
-window.vender=async(id,t)=>{
- let p=produtos.find(x=>x.id===id);
- let d=p.tamanhos[t];
+function editarProduto(id){
+  let produto = produtos.find(p=>p.id === id);
 
- if(d.vendido>=d.total) return alert("Sem estoque");
+  if(!produto) return;
 
- d.vendido++;
- await updateDoc(doc(db,"produtos",id),{tamanhos:p.tamanhos});
- carregar();
-}
+  let novoNome = prompt('Novo nome', produto.nome);
+  let novoValor = prompt('Novo valor', produto.valor);
 
-async function carregar(){
- let snap=await getDocs(collection(db,"produtos"));
- produtos=[];
- snap.forEach(d=>produtos.push({id:d.id,...d.data()}));
- render();
+  produto.nome = novoNome;
+  produto.valor = Number(novoValor);
+
+  render();
 }
 
 function render(){
- let c=produtosDiv=document.getElementById("produtos");
- c.innerHTML="";
+  const lista = document.getElementById('listaProdutos');
+  const historico = document.getElementById('historico');
 
- let investido=0,estoque=0,vendidoTotal=0;
- let ranking=[];
+  lista.innerHTML = '';
+  historico.innerHTML = '';
 
- produtos.forEach(p=>{
- let vendidos=0,estoqueProd=0,html="",tamTop="",qtdTop=0;
+  let investido = 0;
+  let estoque = 0;
+  let vendidoTotal = 0;
 
- for(let t in p.tamanhos){
-   let d=p.tamanhos[t];
-   let rest=d.total-d.vendido;
+  let ranking = [];
 
-   vendidos+=d.vendido;
-   vendidoTotal+=d.vendido*p.valor;
-   estoque+=rest*p.valor;
-   estoqueProd+=rest;
+  produtos.forEach(produto=>{
 
-   if(d.vendido>qtdTop){qtdTop=d.vendido;tamTop=t;}
+    let htmlTam = '';
+    let vendidosProduto = 0;
+    let estoqueProduto = 0;
 
-   html+=`${t}: ${rest} <button onclick="vender('${p.id}','${t}')">+</button><br>`;
- }
+    for(let t in produto.tamanhos){
+      let dados = produto.tamanhos[t];
+      let restante = dados.total - dados.vendido;
 
- investido+=p.custo;
+      vendidosProduto += dados.vendido;
+      estoqueProduto += restante;
 
- if(estoqueProd>0){
- c.innerHTML+=`
- <div class="card">
- <img src="${p.img}">
- <div class="info">
- <b>${p.nome}</b><br>
- R$ ${p.valor}<br>
- ${html}
- <button onclick="editarProduto('${p.id}')">Editar</button>
- <button class="red" onclick="excluirProduto('${p.id}')">Excluir</button>
- </div></div>`;
- }
+      vendidoTotal += dados.vendido * produto.valor;
+      estoque += restante * produto.valor;
 
- ranking.push({nome:p.nome,vendidos,tamTop,qtdTop});
- });
+      htmlTam += `
+      <div class="tamanho">
+        <span>${t}: ${restante} restantes</span>
+        <button class="btn-vender" onclick="vender(${produto.id},'${t}')">+</button>
+      </div>`;
+    }
 
- ranking.sort((a,b)=>b.vendidos-a.vendidos);
+    investido += produto.custo;
 
- if(ranking.length){
- let top=ranking[0];
+    if(estoqueProduto > 0){
+      lista.innerHTML += `
+      <div class="card">
+        <img src="${produto.img}">
 
- c.innerHTML+=`
- <div class="destaque">
- 🔥 <b>${top.nome}</b><br>
- Vendidos: ${top.vendidos}<br>
- Tamanho top: ${top.tamTop} (${top.qtdTop})
- </div>
+        <div class="info">
+          <div class="nome">${produto.nome}</div>
+          <div class="preco">R$ ${produto.valor}</div>
 
- <div style="padding:10px">
- <h3>📊 Histórico Completo</h3>
- ${ranking.map(p=>`
- <div style="background:#fff;padding:8px;margin:5px;border-radius:6px">
- ${p.nome}<br>
- Vendidos: ${p.vendidos}<br>
- Top: ${p.tamTop} (${p.qtdTop})
- </div>`).join('')}
- </div>`;
- }
+          ${htmlTam}
 
- investidoEl.innerText=investido.toFixed(2);
- estoqueEl.innerText=estoque.toFixed(2);
- lucroEl.innerText=(vendidoTotal-investido).toFixed(2);
+          <div class="botoes">
+            <button class="edit" onclick="editarProduto(${produto.id})">Editar</button>
+            <button class="delete" onclick="excluirProduto(${produto.id})">Excluir</button>
+          </div>
+        </div>
+      </div>`;
+    }
+
+    ranking.push({
+      nome:produto.nome,
+      vendidos:vendidosProduto,
+      tamanhos:produto.tamanhos
+    });
+  });
+
+  ranking.sort((a,b)=>b.vendidos-a.vendidos);
+
+  ranking.forEach(item=>{
+    let detalhes = '';
+
+    for(let t in item.tamanhos){
+      detalhes += `${t}: ${item.tamanhos[t].vendido} vendidos<br>`;
+    }
+
+    historico.innerHTML += `
+    <div class="rank-item">
+      <b>${item.nome}</b><br>
+      Total vendido: ${item.vendidos}<br><br>
+      ${detalhes}
+    </div>`;
+  });
+
+  document.getElementById('investido').innerText = investido.toFixed(2);
+  document.getElementById('estoque').innerText = estoque.toFixed(2);
+  document.getElementById('lucro').innerText = (vendidoTotal - investido).toFixed(2);
 }
 </script>
 
