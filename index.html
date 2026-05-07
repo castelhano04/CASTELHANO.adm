@@ -503,6 +503,7 @@ function render(){
   let investido = 0;
   let estoque = 0;
   let vendidoTotal = 0;
+  let custoVendido = 0;
 
   let ranking = [];
 
@@ -525,13 +526,21 @@ function render(){
 
       estoqueProduto += restante;
 
+      // TOTAL VENDIDO
       vendidoTotal += dados.vendido * produto.valor;
 
+      // CUSTO DOS ITENS VENDIDOS
+      custoVendido += dados.vendido * produto.custo;
+
+      // VALOR EM ESTOQUE
       estoque += restante * produto.valor;
 
       htmlTam += `
       <div class="tamanho">
-        <span>${t}: ${restante} restantes</span>
+
+        <span>
+        ${t}: ${restante} restantes
+        </span>
 
         <button class="btn-vender"
         onclick="vender('${produto.id}','${t}')">
@@ -541,8 +550,10 @@ function render(){
       </div>`;
     }
 
+    // INVESTIMENTO TOTAL
     investido += totalPecas * produto.custo;
 
+    // MOSTRAR SOMENTE SE TIVER ESTOQUE
     if(estoqueProduto > 0){
 
       lista.innerHTML += `
@@ -552,10 +563,12 @@ function render(){
 
         <div class="info">
 
-          <div class="nome">${produto.nome}</div>
+          <div class="nome">
+          ${produto.nome}
+          </div>
 
           <div class="preco">
-            R$ ${produto.valor}
+          R$ ${produto.valor}
           </div>
 
           ${htmlTam}
@@ -580,14 +593,15 @@ function render(){
     }
 
     ranking.push({
-      id:produto.id,
-      nome:produto.nome,
-      vendidos:vendidosProduto,
-      tamanhos:produto.tamanhos
+      id: produto.id,
+      nome: produto.nome,
+      vendidos: vendidosProduto,
+      tamanhos: produto.tamanhos
     });
 
   });
 
+  // ORDENA MAIS VENDIDOS
   ranking.sort((a,b)=>b.vendidos-a.vendidos);
 
   ranking.forEach(item=>{
@@ -628,6 +642,7 @@ function render(){
     </div>`;
   });
 
+  // ATUALIZA RESUMO
   document.getElementById('investido').innerText =
   investido.toFixed(2);
 
@@ -635,14 +650,7 @@ function render(){
   estoque.toFixed(2);
 
   document.getElementById('lucro').innerText =
-  (vendidoTotal - investido).toFixed(2);
-}
-
-</script>
-
-<script>
-if("serviceWorker" in navigator){
-  navigator.serviceWorker.register("./sw.js");
+  (vendidoTotal - custoVendido).toFixed(2);
 }
 </script>
 
