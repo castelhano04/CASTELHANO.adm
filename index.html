@@ -379,14 +379,6 @@ import {
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-import {
-  getStorage,
-  ref,
-  uploadBytes,
-  getDownloadURL
-}
-from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
-  
 const firebaseConfig = {
   apiKey: "AIzaSyD4TfY6Iwrju_aaG1vpN-q1Z9LyiDBeQvQ",
   authDomain: "estoque-app-13f1d.firebaseapp.com",
@@ -399,7 +391,6 @@ const firebaseConfig = {
 
 const appFirebase = initializeApp(firebaseConfig);
 const db = getFirestore(appFirebase);
-const storage = getStorage(appFirebase);
 
 let produtos = [];
 
@@ -502,29 +493,35 @@ window.addProduto = async function(){
 
     let imagens = [];
 
-    // ENVIA TODAS AS IMAGENS
-    const uploads = Array.from(files).map(async(file)=>{
+    // SALVA IMAGENS DIRETO NO FIRESTORE
+    for(let file of files){
 
-      // evita nome repetido
-      const nomeArquivo =
-      `${Date.now()}-${Math.random()
-      .toString(36)
-      .substring(2)}-${file.name}`;
+      // evita erro de documento gigante
+      if(file.size > 800000){
+        alert(
+          'Imagem muito pesada. Máximo 800KB por foto'
+        );
+        return;
+      }
 
-      const storageRef =
-      ref(storage,'camisas/'+nomeArquivo);
+      const base64 =
+      await new Promise((resolve,reject)=>{
 
-      // envia imagem
-      await uploadBytes(storageRef,file);
+        const reader =
+        new FileReader();
 
-      // pega url
-      return await getDownloadURL(storageRef);
-    });
+        reader.onload = ()=>{
+          resolve(reader.result);
+        };
 
-    // espera TODAS terminarem
-    imagens = await Promise.all(uploads);
+        reader.onerror = reject;
 
-    // salva no firestore
+        reader.readAsDataURL(file);
+      });
+
+      imagens.push(base64);
+    }
+
     await addDoc(
       collection(db,"produtos"),
       {
@@ -550,8 +547,11 @@ window.addProduto = async function(){
 
   }catch(e){
 
-    console.error("ERRO:", e);
-    alert("Erro ao adicionar produto: " + e.message);
+    console.error(e);
+    alert(
+      'Erro ao adicionar produto: ' +
+      e.message
+    );
 
   }
 }
