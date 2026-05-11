@@ -168,6 +168,39 @@ body{
   object-fit:cover;
   display:block;
 }
+  .card img{
+  width:100%;
+  height:180px;
+  object-fit:cover;
+  display:block;
+}
+
+/* NOVO - CARROSSEL */
+.fotos-container{
+  position:relative;
+}
+
+.foto-btn{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  background:rgba(0,0,0,.6);
+  border:none;
+  color:#fff;
+  width:35px;
+  height:35px;
+  border-radius:50%;
+  cursor:pointer;
+  z-index:5;
+}
+
+.foto-prev{
+  left:8px;
+}
+
+.foto-next{
+  right:8px;
+}
 
 .info{
   padding:15px;
@@ -316,7 +349,7 @@ body{
 </div>
 
 <div id="add" class="form">
-  <input type="file" id="foto">
+  <input type="file" id="foto" multiple accept="image/*">
   <input type="text" id="nome" placeholder="Nome da camisa">
   <input type="number" id="custo" placeholder="Valor pago por peça">
   <input type="number" id="valor" placeholder="Valor de venda">
@@ -421,6 +454,18 @@ function converterBase64(file){
     reader.readAsDataURL(file);
   });
 }
+  async function converterMultiplasFotos(files){
+
+  const imagens = [];
+
+  for(let file of files){
+
+    const base64 = await converterBase64(file);
+    imagens.push(base64);
+  }
+
+  return imagens;
+}
 
 function parseTam(str){
 
@@ -443,24 +488,24 @@ window.addProduto = async function(){
 
   try{
 
-    const file = document.getElementById('foto').files[0];
+    const files = document.getElementById('foto').files;
     const nome = document.getElementById('nome').value.trim();
     const custo = Number(document.getElementById('custo').value);
     const valor = Number(document.getElementById('valor').value);
     const tamanhos = document.getElementById('tamanhos').value.trim();
 
-    if(!file || !nome || !custo || !valor || !tamanhos){
+    if(files.length === 0 || !nome || !custo || !valor || !tamanhos){
       alert('Preencha tudo');
       return;
     }
 
-    const img = await converterBase64(file);
+    const imagens = await converterMultiplasFotos(files);
 
     await addDoc(collection(db,"produtos"),{
       nome,
       custo,
       valor,
-      img,
+      imagens,
       tamanhos: parseTam(tamanhos)
     });
 
@@ -533,7 +578,34 @@ window.editarProduto = async function(id){
 
   carregar();
 }
+let fotoAtual = {};
 
+window.trocarFoto = function(id,direcao){
+
+  const produto = produtos.find(p=>p.id === id);
+
+  if(!produto) return;
+
+  const imagens = produto.imagens || [produto.img];
+
+  if(fotoAtual[id] == null){
+    fotoAtual[id] = 0;
+  }
+
+  fotoAtual[id] += direcao;
+
+  if(fotoAtual[id] < 0){
+    fotoAtual[id] = imagens.length - 1;
+  }
+
+  if(fotoAtual[id] >= imagens.length){
+    fotoAtual[id] = 0;
+  }
+
+  document.getElementById(`foto-${id}`).src =
+  imagens[fotoAtual[id]];
+}
+  
 function render(){
 
   const lista = document.getElementById('listaProdutos');
@@ -597,7 +669,24 @@ for(let t in produto.tamanhos){
       lista.innerHTML += `
       <div class="card">
 
-        <img src="${produto.img}">
+       <div class="fotos-container">
+
+<img id="foto-${produto.id}"
+src="${produto.imagens?.[0] || produto.img}">
+
+${(produto.imagens?.length || 0) > 1 ? `
+<button class="foto-btn foto-prev"
+onclick="trocarFoto('${produto.id}',-1)">
+‹
+</button>
+
+<button class="foto-btn foto-next"
+onclick="trocarFoto('${produto.id}',1)">
+›
+</button>
+` : ''}
+
+</div>
 
         <div class="info">
 
