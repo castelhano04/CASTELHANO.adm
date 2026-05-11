@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>CP10 SPORTS</title>
+<title>Castelhano Sport's</title>
 
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#ff6b00">
@@ -160,14 +160,9 @@ body{
   border:1px solid #222;
   border-radius:12px;
   overflow:hidden;
+  
 }
-
-.card img{
-  width:100%;
-  height:180px;
-  object-fit:cover;
-  display:block;
-}
+  
   .card img{
   width:100%;
   height:180px;
@@ -309,7 +304,7 @@ body{
 
 <div id="login">
   <div class="login-box">
-    <h1>CP10 SPORTS</h1>
+    <h1>Castelhano Sport's</h1>
     <input type="password" id="senha" placeholder="Digite sua senha">
     <button onclick="logar()">ENTRAR</button>
   </div>
@@ -318,7 +313,7 @@ body{
 <div id="app">
 
 <div class="topo">
-  <div class="logo">CP10 SPORTS</div>
+  <div class="logo">Castelhano Sport's</div>
 
   <div class="resumo">
     <div class="box">
@@ -370,7 +365,8 @@ body{
 
 <script type="module">
 
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeApp }
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
   getFirestore,
@@ -380,13 +376,22 @@ import {
   updateDoc,
   deleteDoc,
   doc
-} from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
+import {
+  getStorage,
+  ref,
+  uploadBytes,
+  getDownloadURL
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-storage.js";
+  
 const firebaseConfig = {
   apiKey: "AIzaSyD4TfY6Iwrju_aaG1vpN-q1Z9LyiDBeQvQ",
   authDomain: "estoque-app-13f1d.firebaseapp.com",
   projectId: "estoque-app-13f1d",
-  storageBucket: "estoque-app-13f1d.firebasestorage.app",
+  storageBucket: "estoque-app-13f1d.appspot.com",
   messagingSenderId: "193095930583",
   appId: "1:193095930583:web:88587ee9f4e10076619692",
   measurementId: "G-Y99TQTKNRG"
@@ -394,6 +399,7 @@ const firebaseConfig = {
 
 const appFirebase = initializeApp(firebaseConfig);
 const db = getFirestore(appFirebase);
+const storage = getStorage(appFirebase);
 
 let produtos = [];
 
@@ -447,26 +453,6 @@ window.trocarTab = function(tab){
   }
 }
 
-function converterBase64(file){
-  return new Promise((resolve)=>{
-    const reader = new FileReader();
-    reader.onload = ()=>resolve(reader.result);
-    reader.readAsDataURL(file);
-  });
-}
-  async function converterMultiplasFotos(files){
-
-  const imagens = [];
-
-  for(let file of files){
-
-    const base64 = await converterBase64(file);
-    imagens.push(base64);
-  }
-
-  return imagens;
-}
-
 function parseTam(str){
 
   let obj = {};
@@ -488,43 +474,88 @@ window.addProduto = async function(){
 
   try{
 
-    const files = document.getElementById('foto').files;
-    const nome = document.getElementById('nome').value.trim();
-    const custo = Number(document.getElementById('custo').value);
-    const valor = Number(document.getElementById('valor').value);
-    const tamanhos = document.getElementById('tamanhos').value.trim();
+    const files =
+    document.getElementById('foto').files;
 
-    if(files.length === 0 || !nome || !custo || !valor || !tamanhos){
+    const nome =
+    document.getElementById('nome').value.trim();
+
+    const custo =
+    Number(document.getElementById('custo').value);
+
+    const valor =
+    Number(document.getElementById('valor').value);
+
+    const tamanhos =
+    document.getElementById('tamanhos').value.trim();
+
+    if(
+      files.length === 0 ||
+      !nome ||
+      !custo ||
+      !valor ||
+      !tamanhos
+    ){
       alert('Preencha tudo');
       return;
     }
 
-    const imagens = await converterMultiplasFotos(files);
+    let imagens = [];
 
-    await addDoc(collection(db,"produtos"),{
-      nome,
-      custo,
-      valor,
-      imagens,
-      tamanhos: parseTam(tamanhos)
-    });
+    // ENVIA TODAS AS FOTOS
+   for(let file of files){
 
-    // LIMPA OS CAMPOS
-    document.getElementById('foto').value = '';
-    document.getElementById('nome').value = '';
-    document.getElementById('custo').value = '';
-    document.getElementById('valor').value = '';
-    document.getElementById('tamanhos').value = '';
+  if(file.size > 5 * 1024 * 1024){
+    alert('Imagem muito pesada. Máximo 5MB');
+    return;
+  }
 
-    // RECARREGA
+      const nomeArquivo =
+      Date.now() + '-' + file.name;
+
+      const storageRef =
+      ref(storage,'camisas/'+nomeArquivo);
+
+      await uploadBytes(
+        storageRef,
+        file
+      );
+
+      const url =
+      await getDownloadURL(
+        storageRef
+      );
+
+      imagens.push(url);
+    }
+
+    await addDoc(
+      collection(db,"produtos"),
+      {
+        nome,
+        custo,
+        valor,
+        imagens,
+        tamanhos:
+        parseTam(tamanhos)
+      }
+    );
+
+    document.getElementById('foto').value='';
+    document.getElementById('nome').value='';
+    document.getElementById('custo').value='';
+    document.getElementById('valor').value='';
+    document.getElementById('tamanhos').value='';
+
     await carregar();
 
-    alert('Produto adicionado com sucesso!');
+    alert('Produto adicionado!');
 
-  }catch(e){
-    console.error(e);
-    alert('Erro ao adicionar produto');
-  }
+ }catch(e){
+
+  console.error("ERRO COMPLETO:", e);
+  alert("Erro: " + e.message);
+
 }
   
 window.vender = async function(id,tamanho){
@@ -627,8 +658,10 @@ function render(){
     let estoqueProduto = 0;
    let totalPecasProduto = 0;
 
-for(let t in produto.tamanhos){
+if(!produto.tamanhos) return;
 
+for(let t in produto.tamanhos){
+  
   let dados = produto.tamanhos[t];
 
   let restante = dados.total - dados.vendido;
