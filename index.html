@@ -502,33 +502,29 @@ window.addProduto = async function(){
 
     let imagens = [];
 
-    // ENVIA TODAS AS FOTOS
-   for(let file of files){
+    // ENVIA TODAS AS IMAGENS
+    const uploads = Array.from(files).map(async(file)=>{
 
-  if(file.size > 5 * 1024 * 1024){
-    alert('Imagem muito pesada. Máximo 5MB');
-    return;
-  }
-
+      // evita nome repetido
       const nomeArquivo =
-      Date.now() + '-' + file.name;
+      `${Date.now()}-${Math.random()
+      .toString(36)
+      .substring(2)}-${file.name}`;
 
       const storageRef =
       ref(storage,'camisas/'+nomeArquivo);
 
-      await uploadBytes(
-        storageRef,
-        file
-      );
+      // envia imagem
+      await uploadBytes(storageRef,file);
 
-      const url =
-      await getDownloadURL(
-        storageRef
-      );
+      // pega url
+      return await getDownloadURL(storageRef);
+    });
 
-      imagens.push(url);
-    }
+    // espera TODAS terminarem
+    imagens = await Promise.all(uploads);
 
+    // salva no firestore
     await addDoc(
       collection(db,"produtos"),
       {
@@ -541,6 +537,7 @@ window.addProduto = async function(){
       }
     );
 
+    // limpa campos
     document.getElementById('foto').value='';
     document.getElementById('nome').value='';
     document.getElementById('custo').value='';
@@ -551,11 +548,12 @@ window.addProduto = async function(){
 
     alert('Produto adicionado!');
 
- }catch(e){
+  }catch(e){
 
-  console.error("ERRO COMPLETO:", e);
-  alert("Erro: " + e.message);
+    console.error("ERRO:", e);
+    alert("Erro ao adicionar produto: " + e.message);
 
+  }
 }
   
 window.vender = async function(id,tamanho){
