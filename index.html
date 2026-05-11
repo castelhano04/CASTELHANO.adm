@@ -441,30 +441,47 @@ function parseTam(str){
 
 window.addProduto = async function(){
 
-  const file = document.getElementById('foto').files[0];
-  const nome = document.getElementById('nome').value;
-  const custo = Number(document.getElementById('custo').value);
-  const valor = Number(document.getElementById('valor').value);
-  const tamanhos = document.getElementById('tamanhos').value;
+  try{
 
-  if(!file || !nome || !custo || !valor || !tamanhos){
-    alert('Preencha tudo');
-    return;
+    const file = document.getElementById('foto').files[0];
+    const nome = document.getElementById('nome').value.trim();
+    const custo = Number(document.getElementById('custo').value);
+    const valor = Number(document.getElementById('valor').value);
+    const tamanhos = document.getElementById('tamanhos').value.trim();
+
+    if(!file || !nome || !custo || !valor || !tamanhos){
+      alert('Preencha tudo');
+      return;
+    }
+
+    const img = await converterBase64(file);
+
+    await addDoc(collection(db,"produtos"),{
+      nome,
+      custo,
+      valor,
+      img,
+      tamanhos: parseTam(tamanhos)
+    });
+
+    // LIMPA OS CAMPOS
+    document.getElementById('foto').value = '';
+    document.getElementById('nome').value = '';
+    document.getElementById('custo').value = '';
+    document.getElementById('valor').value = '';
+    document.getElementById('tamanhos').value = '';
+
+    // RECARREGA
+    await carregar();
+
+    alert('Produto adicionado com sucesso!');
+
+  }catch(e){
+    console.error(e);
+    alert('Erro ao adicionar produto');
   }
-
-  const img = await converterBase64(file);
-
-  await addDoc(collection(db,"produtos"),{
-    nome,
-    custo,
-    valor,
-    img,
-    tamanhos:parseTam(tamanhos)
-  });
-
-  carregar();
 }
-
+  
 window.vender = async function(id,tamanho){
 
   let produto = produtos.find(p=>p.id === id);
