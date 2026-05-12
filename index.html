@@ -339,8 +339,20 @@ body{
 </div>
 
 <div class="tabs">
-  <div class="tab ativo" onclick="trocarTab('add')">Adicionar</div>
-  <div class="tab" onclick="trocarTab('produtos')">Produtos</div>
+  <div class="tab ativo"
+  onclick="trocarTab('add')">
+  Adicionar
+  </div>
+
+  <div class="tab"
+  onclick="trocarTab('produtos')">
+  Produtos
+  </div>
+
+  <div class="tab"
+  onclick="trocarTab('pedidos')">
+  Pedidos
+  </div>
 </div>
 
 <div id="add" class="form">
@@ -350,6 +362,18 @@ body{
   <input type="number" id="valor" placeholder="Valor de venda">
   <input type="text" id="tamanhos" placeholder="P:5,M:3,G:2">
   <button onclick="addProduto()">Adicionar Produto</button>
+  <div id="pedidos"
+style="display:none;padding:15px;">
+
+<h2 style="
+color:#ea580c;
+margin-bottom:15px;">
+📦 Pedidos
+</h2>
+
+<div id="listaPedidos"></div>
+
+</div>
 </div>
 
 <div id="produtos" style="display:none">
@@ -428,19 +452,50 @@ async function carregar(){
 
 window.trocarTab = function(tab){
 
-  document.getElementById('add').style.display = 'none';
-  document.getElementById('produtos').style.display = 'none';
+  document.getElementById('add')
+  .style.display='none';
 
-  document.querySelectorAll('.tab').forEach(t=>{
+  document.getElementById('produtos')
+  .style.display='none';
+
+  document.getElementById('pedidos')
+  .style.display='none';
+
+  document
+  .querySelectorAll('.tab')
+  .forEach(t=>{
     t.classList.remove('ativo');
   });
 
   if(tab === 'add'){
-    document.getElementById('add').style.display = 'block';
-    document.querySelectorAll('.tab')[0].classList.add('ativo');
+
+    document
+    .getElementById('add')
+    .style.display='block';
+
+    document
+    .querySelectorAll('.tab')[0]
+    .classList.add('ativo');
+
+  }else if(tab === 'produtos'){
+
+    document
+    .getElementById('produtos')
+    .style.display='block';
+
+    document
+    .querySelectorAll('.tab')[1]
+    .classList.add('ativo');
+
   }else{
-    document.getElementById('produtos').style.display = 'block';
-    document.querySelectorAll('.tab')[1].classList.add('ativo');
+
+    document
+    .getElementById('pedidos')
+    .style.display='block';
+
+    document
+    .querySelectorAll('.tab')[2]
+    .classList.add('ativo');
   }
 }
 
