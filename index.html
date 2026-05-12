@@ -523,16 +523,19 @@ window.addProduto = async function(){
     }
 
     await addDoc(
-      collection(db,"produtos"),
-      {
-        nome,
-        custo,
-        valor,
-        imagens,
-        tamanhos:
-        parseTam(tamanhos)
-      }
-    );
+  collection(db,"produtos"),
+  {
+    nome,
+    custo,
+    valor,
+    imagens,
+    tamanhos: parseTam(tamanhos),
+
+    vendidos: [], // histórico de vendas
+    totalVendido: 0,
+    lucro: 0
+  }
+);
 
     // limpa campos
     document.getElementById('foto').value='';
@@ -569,11 +572,89 @@ window.vender = async function(id,tamanho){
     return;
   }
 
+  const confirmar = confirm(
+`Confirmar venda?
+
+Produto: ${produto.nome}
+Tamanho: ${tamanho}
+Valor: R$ ${produto.valor}`
+  );
+
+  if(!confirmar) return;
+
+  const formaPagamento = prompt(
+`Forma de pagamento:
+
+1 - PIX
+2 - Dinheiro
+3 - Cartão
+4 - Parcelado`
+  );
+
+  let pagamento = 'Não informado';
+
+  if(formaPagamento === '1'){
+    pagamento = 'PIX';
+  }
+
+  if(formaPagamento === '2'){
+    pagamento = 'Dinheiro';
+  }
+
+  if(formaPagamento === '3'){
+    pagamento = 'Cartão';
+  }
+
+  if(formaPagamento === '4'){
+    pagamento = 'Parcelado';
+  }
+
+  // baixa estoque
   t.vendido++;
 
-  await updateDoc(doc(db,"produtos",id),{
-    tamanhos:produto.tamanhos
+  // calcula lucro real
+  const lucroVenda =
+  produto.valor - produto.custo;
+
+  // cria histórico se não existir
+  if(!produto.vendidos){
+    produto.vendidos = [];
+  }
+
+  produto.vendidos.push({
+    data: new Date().toLocaleString('pt-BR'),
+    tamanho,
+    valor: produto.valor,
+    custo: produto.custo,
+    lucro: lucroVenda,
+    pagamento
   });
+
+  produto.totalVendido =
+  (produto.totalVendido || 0)
+  + produto.valor;
+
+  produto.lucro =
+  (produto.lucro || 0)
+  + lucroVenda;
+
+  await updateDoc(
+    doc(db,"produtos",id),
+    {
+      tamanhos: produto.tamanhos,
+      vendidos: produto.vendidos,
+      totalVendido:
+      produto.totalVendido,
+      lucro: produto.lucro
+    }
+  );
+
+  alert(
+`Venda confirmada!
+
+Pagamento: ${pagamento}
+Lucro: R$ ${lucroVenda.toFixed(2)}`
+  );
 
   carregar();
 }
