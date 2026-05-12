@@ -417,6 +417,7 @@ const appFirebase = initializeApp(firebaseConfig);
 const db = getFirestore(appFirebase);
 
 let produtos = [];
+let pedidos = [];
 
 window.logar = function(){
 
@@ -436,20 +437,43 @@ window.logar = function(){
 
 async function carregar(){
 
-  let snap = await getDocs(collection(db,"produtos"));
+  // PRODUTOS
+  let snapProdutos =
+  await getDocs(
+    collection(db,"produtos")
+  );
 
   produtos = [];
 
-  snap.forEach(docu=>{
+  snapProdutos.forEach(docu=>{
+
     produtos.push({
-      id:docu.id,
+      id: docu.id,
       ...docu.data()
     });
+
+  });
+
+  // PEDIDOS
+  let snapPedidos =
+  await getDocs(
+    collection(db,"pedidos")
+  );
+
+  pedidos = [];
+
+  snapPedidos.forEach(docu=>{
+
+    pedidos.push({
+      id: docu.id,
+      ...docu.data()
+    });
+
   });
 
   render();
+  renderPedidos();
 }
-
 window.trocarTab = function(tab){
 
   document.getElementById('add')
@@ -743,6 +767,7 @@ window.editarProduto = async function(id){
 
   carregar();
 }
+  
 let fotoAtual = {};
 
 window.trocarFoto = function(id,direcao){
@@ -769,6 +794,94 @@ window.trocarFoto = function(id,direcao){
 
   document.getElementById(`foto-${id}`).src =
   imagens[fotoAtual[id]];
+}
+  function renderPedidos(){
+
+  const lista =
+  document.getElementById(
+    'listaPedidos'
+  );
+
+  if(!lista) return;
+
+  lista.innerHTML='';
+
+  if(pedidos.length === 0){
+
+    lista.innerHTML = `
+    <div style="
+    background:#111;
+    padding:15px;
+    border-radius:12px;
+    border:1px solid #222;
+    text-align:center;">
+    Nenhum pedido ainda
+    </div>`;
+
+    return;
+  }
+
+  pedidos.reverse().forEach(pedido=>{
+
+    let itensHTML='';
+
+    pedido.itens.forEach(item=>{
+
+      itensHTML += `
+      <div style="
+      background:#1b1b1b;
+      padding:10px;
+      border-radius:10px;
+      margin-bottom:8px;">
+
+      <b>${item.nome}</b><br>
+      Tam: ${item.tamanho}<br>
+      Valor: R$ ${item.valor}
+
+      </div>`;
+    });
+
+    lista.innerHTML += `
+
+    <div style="
+    background:#111;
+    border:1px solid #222;
+    border-radius:14px;
+    padding:15px;
+    margin-bottom:12px;">
+
+    <div style="
+    color:#ea580c;
+    font-weight:bold;
+    margin-bottom:10px;">
+
+    Pedido ${pedido.numero || ''}
+
+    </div>
+
+    ${itensHTML}
+
+    <div style="
+    margin-top:10px;
+    color:#22c55e;
+    font-weight:bold;">
+
+    Total:
+    R$ ${pedido.total || 0}
+
+    </div>
+
+    <div style="
+    margin-top:10px;
+    color:#facc15;">
+
+    Status:
+    ${pedido.status || 'Aguardando pagamento'}
+
+    </div>
+
+    </div>`;
+  });
 }
   
 function render(){
