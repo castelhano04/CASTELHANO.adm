@@ -776,7 +776,12 @@ window.trocarFoto = function(id,direcao){
 
   if(!produto) return;
 
-  const imagens = produto.imagens || [produto.img];
+  const imagens =
+produto.imagens?.length
+? produto.imagens
+: (produto.img
+? [produto.img]
+: []);
 
   if(fotoAtual[id] == null){
     fotoAtual[id] = 0;
@@ -825,7 +830,7 @@ window.trocarFoto = function(id,direcao){
 
     let itensHTML='';
 
-    pedido.itens.forEach(item=>{
+    for(let t in (produto.tamanhos || {})){
 
       itensHTML += `
       <div style="
@@ -909,7 +914,8 @@ if(!produto.tamanhos) return;
 
 for(let t in produto.tamanhos){
   
-  let dados = produto.tamanhos[t];
+  let dados =
+(produto.tamanhos || {})[t];
 
   let restante = dados.total - dados.vendido;
 
@@ -952,7 +958,11 @@ for(let t in produto.tamanhos){
        <div class="fotos-container">
 
 <img id="foto-${produto.id}"
-src="${produto.imagens?.[0] || produto.img}">
+src="${
+produto.imagens?.[0]
+|| produto.img
+|| 'https://via.placeholder.com/300x300?text=Sem+Imagem'
+}"
 
 ${(produto.imagens?.length || 0) > 1 ? `
 <button class="foto-btn foto-prev"
