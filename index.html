@@ -148,64 +148,139 @@ body{
   cursor:pointer;
 }
 
-/* GRADE ESTILO CATALOGO */
+/* ===== GRID ESTILO SHOPPE ===== */
+
+#produtos{
+  padding:6px;
+}
+
 .grid{
-display:grid;
-grid-template-columns:repeat(2,1fr);
-gap:8px;
-padding:8px;
+  display:grid;
+  grid-template-columns:repeat(2,1fr); /* celular */
+  gap:6px;
+  width:100%;
+}
+
+/* PC = 4 por linha */
+@media(min-width:900px){
+  .grid{
+    grid-template-columns:repeat(4,1fr);
+    max-width:1400px;
+    margin:auto;
+  }
 }
 
 /* CARD */
 .card{
   background:#111;
+  border:1px solid #222;
   border-radius:10px;
   overflow:hidden;
-  border:1px solid #222;
+  width:100%;
+  max-width:100%;
+  transition:.2s;
+}
+
+/* EFEITO HOVER PC */
+.card:hover{
+  transform:translateY(-2px);
+}
+
+/* ÁREA DA FOTO */
+.fotos-container{
+  width:100%;
+  aspect-ratio:0.9/1;
+
+/* IMAGEM PROPORCIONAL */
+.card img{
+  width:100%;
+  height:100%;
+  object-fit:contain; /* mostra inteira */
+  display:block;
   padding:6px;
 }
 
-/* IMAGEM PEQUENA IGUAL LOJA */
-.card img{
-  width:100%;
-  height:120px; /* menor */
-  object-fit:contain; /* mostra a camisa inteira */
-  border-radius:10px;
-  display:block;
-  background:#181818;
-  padding:4px;
-}
-  
+/* INFO */
 .info{
-  padding:8px;
+  padding:6px;
 }
 
+/* NOME */
 .nome{
-  font-size:10px;
-  min-height:22px;
+  font-size:11px;
+  font-weight:600;
+  line-height:1.2;
+  margin-bottom:4px;
+
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+
+  min-height:28px;
 }
 
+/* PREÇO */
 .preco{
+  color:#22c55e;
   font-size:15px;
+  font-weight:bold;
   margin-bottom:5px;
 }
 
+/* TAMANHOS */
 .tamanho{
-  padding:8px 8px;
-  font-size:9px;
+  background:#181818;
+  border-radius:6px;
+  padding:4px 6px;
+  margin-bottom:4px;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  font-size:10px;
 }
 
+/* BOTÃO + */
 .btn-vender{
-  width:18px;
-  height:18px;
-  min-width:18px;
-  font-size:10px;
+  width:20px;
+  height:20px;
+  min-width:20px;
+  border:none;
+  border-radius:50%;
+  background:#22c55e;
+  color:#fff;
+  font-size:12px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+/* BOTÕES */
+.botoes{
+  display:flex;
+  gap:4px;
+  margin-top:5px;
 }
 
 .edit,
 .delete{
-  padding:5px;
-  font-size:9px;
+  flex:1;
+  padding:6px;
+  border:none;
+  border-radius:6px;
+  font-size:10px;
+  cursor:pointer;
+}
+
+.edit{
+  background:#3b82f6;
+  color:white;
+}
+
+.delete{
+  background:#ef4444;
+  color:white;
 }
   
 .ranking{
@@ -247,28 +322,48 @@ padding:8px;
   padding:8px;
   font-size:13px;
 }
-  @media(max-width:600px){
+@media(max-width:600px){
 
- .logo{
-  color:#ea580c;
-  font-size:22px;
-  font-weight:bold;
-  text-align:center;
-}
+  .logo{
+    font-size:22px;
+    text-align:center;
+  }
 
   .grid{
     grid-template-columns:repeat(2,1fr);
-    gap:10px;
+    gap:5px;
   }
 
   .card{
-    border-radius:14px;
+    border-radius:8px;
+  }
+
+  .nome{
+    font-size:10px;
+    min-height:22px;
   }
 
   .preco{
-    font-size:20px;
+    font-size:14px;
   }
 
+  .tamanho{
+    font-size:9px;
+    padding:3px 5px;
+  }
+
+  .btn-vender{
+    width:18px;
+    height:18px;
+    min-width:18px;
+    font-size:10px;
+  }
+
+  .edit,
+  .delete{
+    padding:5px;
+    font-size:9px;
+  }
 }
   
 </style>
