@@ -87,9 +87,9 @@ body{
 
 .resumo{
   display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
-  gap:10px;
-  margin-top:15px;
+  grid-template-columns:repeat(2,1fr);
+  gap:6px;
+  margin-top:10px;
 }
 
 .box{
@@ -148,108 +148,115 @@ body{
   cursor:pointer;
 }
 
+/* GRADE ESTILO CATALOGO */
 .grid{
   display:grid;
-  grid-template-columns:repeat(3,1fr);
+  grid-template-columns:repeat(2,1fr);
   gap:6px;
   padding:6px;
 }
 
+/* CARD */
 .card{
   background:#111;
-  border:1px solid #222;
-  border-radius:16px;
+  border-radius:10px;
   overflow:hidden;
+  border:1px solid #1f1f1f;
 }
-  
- .card img{
+
+/* IMAGEM PEQUENA IGUAL LOJA */
+.card img{
   width:100%;
-  height:105px;
+  height:115px;
   object-fit:cover;
-  border-radius:8px;
   display:block;
-  background:#181818;
+  border-radius:0;
 }
 
-/* NOVO - CARROSSEL */
-.fotos-container{
-  position:relative;
-}
-
-.foto-btn{
-  position:absolute;
-  top:50%;
-  transform:translateY(-50%);
-  background:rgba(0,0,0,.6);
-  border:none;
-  color:#fff;
-  width:35px;
-  height:35px;
-  border-radius:50%;
-  cursor:pointer;
-  z-index:5;
-}
-
-.foto-prev{
-  left:8px;
-}
-
-.foto-next{
-  right:8px;
-}
-
+/* INFO */
 .info{
-  padding:8px;
+  padding:6px;
 }
 
+/* NOME */
 .nome{
   font-size:11px;
+  font-weight:600;
+  line-height:1.2;
+  margin-bottom:3px;
+
+  display:-webkit-box;
+  -webkit-line-clamp:2;
+  -webkit-box-orient:vertical;
+  overflow:hidden;
+
+  min-height:26px;
 }
 
+/* PREÇO */
 .preco{
-  font-size:15px;
-  margin-bottom:4px;
+  color:#22c55e;
+  font-size:16px;
+  font-weight:bold;
+  margin-bottom:5px;
 }
 
+/* TAMANHOS */
 .tamanho{
-  padding:4px 6px;
-  font-size:10px;
+  background:#181818;
   border-radius:6px;
+  padding:4px 6px;
+  margin-bottom:4px;
+
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+
+  font-size:10px;
 }
 
+/* BOTAO + */
 .btn-vender{
-  width:22px;
-  height:22px;
-  min-width:22px;
-  font-size:13px;
+  width:20px;
+  height:20px;
+  min-width:20px;
+  border:none;
+  border-radius:50%;
+  background:#22c55e;
+  color:white;
+  font-size:12px;
+  font-weight:bold;
+  cursor:pointer;
+  margin:0;
+  padding:0;
 }
-  
+
+/* BOTÕES EDITAR/EXCLUIR */
 .botoes{
   display:flex;
-  gap:10px;
-  margin-top:12px;
+  gap:5px;
+  margin-top:5px;
+}
+
+.edit,
+.delete{
+  flex:1;
+  padding:6px;
+  border:none;
+  border-radius:7px;
+  color:white;
+  font-size:10px;
+  font-weight:bold;
 }
 
 .edit{
-  flex:1;
-  background:#3b82f6;
-  border:none;
-  color:white;
-  padding:10px;
-  border-radius:10px;
-  cursor:pointer;
+  background:#2563eb;
 }
 
 .delete{
-  flex:1;
   background:#ef4444;
-  border:none;
-  color:white;
-  padding:10px;
-  border-radius:10px;
-  cursor:pointer;
 }
-
+  
 .ranking{
   margin:10px;
   padding:0;
@@ -291,10 +298,12 @@ body{
 }
   @media(max-width:600px){
 
-  .logo{
-    font-size:22px;
-    text-align:center;
-  }
+ .logo{
+  color:#ea580c;
+  font-size:22px;
+  font-weight:bold;
+  text-align:center;
+}
 
   .grid{
     grid-template-columns:repeat(2,1fr);
