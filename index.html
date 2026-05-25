@@ -462,12 +462,6 @@ body{
   Produtos
   </div>
 
-  <div class="tab"
-  onclick="trocarTab('pedidos')">
-  Pedidos
-  </div>
-</div>
-
 <div id="add" class="form">
   <input type="file" id="foto" multiple accept="image/*">
   <input type="text" id="nome" placeholder="Nome da camisa">
@@ -486,19 +480,6 @@ body{
     <h2>🔥 Histórico de Vendas</h2>
     <div id="historico"></div>
   </div>
-</div>
-
-<div id="pedidos"
-style="display:none;padding:15px;">
-
-<h2 style="
-color:#ea580c;
-margin-bottom:15px;">
-📦 Pedidos
-</h2>
-
-<div id="listaPedidos"></div>
-
 </div>
 
 <script type="module">
@@ -568,91 +549,6 @@ async function carregar(){
 
   });
 
-  // PEDIDOS
-  let snapPedidos =
-  await getDocs(
-    collection(db,"pedidos")
-  );
-
-  pedidos = [];
-
-  snapPedidos.forEach(docu=>{
-
-    pedidos.push({
-      id: docu.id,
-      ...docu.data()
-    });
-
-  });
-
-  render();
-  renderPedidos();
-}
-window.trocarTab = function(tab){
-
-  document.getElementById('add')
-  .style.display='none';
-
-  document.getElementById('produtos')
-  .style.display='none';
-
-  document.getElementById('pedidos')
-  .style.display='none';
-
-  document
-  .querySelectorAll('.tab')
-  .forEach(t=>{
-    t.classList.remove('ativo');
-  });
-
-  if(tab === 'add'){
-
-    document
-    .getElementById('add')
-    .style.display='block';
-
-    document
-    .querySelectorAll('.tab')[0]
-    .classList.add('ativo');
-
-  }else if(tab === 'produtos'){
-
-    document
-    .getElementById('produtos')
-    .style.display='block';
-
-    document
-    .querySelectorAll('.tab')[1]
-    .classList.add('ativo');
-
-  }else{
-
-    document
-    .getElementById('pedidos')
-    .style.display='block';
-
-    document
-    .querySelectorAll('.tab')[2]
-    .classList.add('ativo');
-  }
-}
-
-function parseTam(str){
-
-  let obj = {};
-
-  str.split(',').forEach(item=>{
-
-    let [tam,qtd] = item.split(':');
-
-    obj[tam.trim()] = {
-      total:Number(qtd),
-      vendido:0
-    };
-  });
-
-  return obj;
-}
 
 window.addProduto = async function(){
 
