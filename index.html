@@ -590,40 +590,27 @@ async function carregar(){
 
   });
   
-  const produto =
-  produtos.find(p=>p.id===id);
+async function carregar(){
 
-  if(!produto) return;
+  let snapProdutos =
+  await getDocs(
+    collection(db,"produtos")
+  );
 
-  const imagens =
-  produto.imagens?.length
-  ? produto.imagens
-  : [];
+  produtos = [];
 
-  if(!fotoAtual[id]){
-    fotoAtual[id] = 0;
-  }
+  snapProdutos.forEach(docu=>{
 
-  fotoAtual[id] += direcao;
+    produtos.push({
+      id: docu.id,
+      ...docu.data()
+    });
 
-  if(fotoAtual[id] < 0){
-    fotoAtual[id] =
-    imagens.length - 1;
-  }
+  });
 
-  if(fotoAtual[id] >= imagens.length){
-    fotoAtual[id] = 0;
-  }
-
-  document.getElementById(
-    `foto-${id}`
-  ).src =
-  imagens[fotoAtual[id]];
-}
-  
   render();
 }
-
+  
 window.trocarTab = function(tab){
 
   document.getElementById('add')
