@@ -589,24 +589,6 @@ async function carregar(){
     });
 
   });
-  
-async function carregar(){
-
-  let snapProdutos =
-  await getDocs(
-    collection(db,"produtos")
-  );
-
-  produtos = [];
-
-  snapProdutos.forEach(docu=>{
-
-    produtos.push({
-      id: docu.id,
-      ...docu.data()
-    });
-
-  });
 
   render();
 }
