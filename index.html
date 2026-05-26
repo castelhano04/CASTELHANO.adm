@@ -410,6 +410,46 @@ body{
     font-size:9px;
   }
 }
+  .fotos-container{
+  position:relative;
+  width:100%;
+  height:170px;
+  background:#181818;
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+}
+
+.produto-img{
+  width:100%;
+  height:100%;
+  object-fit:contain;
+  padding:8px;
+}
+
+.foto-btn{
+  position:absolute;
+  top:50%;
+  transform:translateY(-50%);
+  width:32px;
+  height:32px;
+  border:none;
+  border-radius:50%;
+  background:rgba(0,0,0,.7);
+  color:#fff;
+  cursor:pointer;
+  font-size:18px;
+  z-index:5;
+}
+
+.foto-prev{
+  left:8px;
+}
+
+.foto-next{
+  right:8px;
+}
   
 </style>
 </head>
@@ -549,7 +589,38 @@ async function carregar(){
     });
 
   });
+  
+  const produto =
+  produtos.find(p=>p.id===id);
 
+  if(!produto) return;
+
+  const imagens =
+  produto.imagens?.length
+  ? produto.imagens
+  : [];
+
+  if(!fotoAtual[id]){
+    fotoAtual[id] = 0;
+  }
+
+  fotoAtual[id] += direcao;
+
+  if(fotoAtual[id] < 0){
+    fotoAtual[id] =
+    imagens.length - 1;
+  }
+
+  if(fotoAtual[id] >= imagens.length){
+    fotoAtual[id] = 0;
+  }
+
+  document.getElementById(
+    `foto-${id}`
+  ).src =
+  imagens[fotoAtual[id]];
+}
+  
   render();
 }
 
@@ -928,66 +999,71 @@ for(let t in produto.tamanhos){
     // INVESTIMENTO TOTAL
   investido += totalPecasProduto * produto.custo;
     
-    // MOSTRAR SOMENTE SE TIVER ESTOQUE
-    if(estoqueProduto > 0){
+// MOSTRAR SOMENTE SE TIVER ESTOQUE
+if(estoqueProduto > 0){
 
-      lista.innerHTML += `
-      <div class="card">
+  lista.innerHTML += `
+  <div class="card">
 
-       <div class="fotos-container">
+    <div class="fotos-container">
 
-<img id="foto-${produto.id}"
-src="${
-produto.imagens?.[0]
-|| produto.img
-|| 'https://via.placeholder.com/300x300?text=Sem+Imagem'
-}">
+      <img id="foto-${produto.id}"
+      class="produto-img"
+      src="${
+        produto.imagens?.[0]
+        || produto.img
+        || 'https://via.placeholder.com/300x300?text=Sem+Imagem'
+      }">
 
-${(produto.imagens?.length || 0) > 1 ? `
-<button class="foto-btn foto-prev"
-onclick="trocarFoto('${produto.id}',-1)">
-‹
-</button>
+      ${
+        (produto.imagens?.length || 0) > 1
+        ? `
+        <button class="foto-btn foto-prev"
+        onclick="trocarFoto('${produto.id}',-1)">
+        ❮
+        </button>
 
-<button class="foto-btn foto-next"
-onclick="trocarFoto('${produto.id}',1)">
-›
-</button>
-` : ''}
+        <button class="foto-btn foto-next"
+        onclick="trocarFoto('${produto.id}',1)">
+        ❯
+        </button>
+        `
+        : ''
+      }
 
-</div>
+    </div>
 
-        <div class="info">
+    <div class="info">
 
-          <div class="nome">
-          ${produto.nome}
-          </div>
+      <div class="nome">
+        ${produto.nome}
+      </div>
 
-          <div class="preco">
-          R$ ${produto.valor}
-          </div>
+      <div class="preco">
+        R$ ${produto.valor}
+      </div>
 
-          ${htmlTam}
+      ${htmlTam}
 
-          <div class="botoes">
+      <div class="botoes">
 
-            <button class="edit"
-            onclick="editarProduto('${produto.id}')">
-            Editar
-            </button>
+        <button class="edit"
+        onclick="editarProduto('${produto.id}')">
+        Editar
+        </button>
 
-            <button class="delete"
-            onclick="excluirProduto('${produto.id}')">
-            Excluir
-            </button>
+        <button class="delete"
+        onclick="excluirProduto('${produto.id}')">
+        Excluir
+        </button>
 
-          </div>
+      </div>
 
-        </div>
+    </div>
 
-      </div>`;
-    }
-
+  </div>`;
+  
+}
     ranking.push({
       id: produto.id,
       nome: produto.nome,
