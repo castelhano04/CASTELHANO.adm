@@ -457,12 +457,15 @@ body{
   Adicionar
   </div>
 
-  <div class="tab"
-  onclick="trocarTab('produtos')">
-  Produtos
-  </div>
+ <div class="tab"
+onclick="trocarTab('produtos')">
+Produtos
+</div>
+
+</div> <!-- FECHA TABS -->
 
 <div id="add" class="form">
+  
   <input type="file" id="foto" multiple accept="image/*">
   <input type="text" id="nome" placeholder="Nome da camisa">
   <input type="number" id="custo" placeholder="Valor pago por peça">
@@ -512,7 +515,6 @@ const appFirebase = initializeApp(firebaseConfig);
 const db = getFirestore(appFirebase);
 
 let produtos = [];
-let pedidos = [];
 
 window.logar = function(){
 
@@ -532,7 +534,6 @@ window.logar = function(){
 
 async function carregar(){
 
-  // PRODUTOS
   let snapProdutos =
   await getDocs(
     collection(db,"produtos")
@@ -549,7 +550,45 @@ async function carregar(){
 
   });
 
+  render();
+}
 
+window.trocarTab = function(tab){
+
+  document.getElementById('add')
+  .style.display='none';
+
+  document.getElementById('produtos')
+  .style.display='none';
+
+  document
+  .querySelectorAll('.tab')
+  .forEach(t=>{
+    t.classList.remove('ativo');
+  });
+
+  if(tab === 'add'){
+
+    document
+    .getElementById('add')
+    .style.display='block';
+
+    document
+    .querySelectorAll('.tab')[0]
+    .classList.add('ativo');
+
+  }else{
+
+    document
+    .getElementById('produtos')
+    .style.display='block';
+
+    document
+    .querySelectorAll('.tab')[1]
+    .classList.add('ativo');
+  }
+}
+  
 window.addProduto = async function(){
 
   try{
@@ -809,94 +848,6 @@ produto.imagens?.length
 
   document.getElementById(`foto-${id}`).src =
   imagens[fotoAtual[id]];
-}
-  function renderPedidos(){
-
-  const lista =
-  document.getElementById(
-    'listaPedidos'
-  );
-
-  if(!lista) return;
-
-  lista.innerHTML='';
-
-  if(pedidos.length === 0){
-
-    lista.innerHTML = `
-    <div style="
-    background:#111;
-    padding:15px;
-    border-radius:12px;
-    border:1px solid #222;
-    text-align:center;">
-    Nenhum pedido ainda
-    </div>`;
-
-    return;
-  }
-
-  pedidos.reverse().forEach(pedido=>{
-
-    let itensHTML='';
-    
-(pedido.itens || []).forEach(item => {
-
-  itensHTML += `
-  <div style="
-  background:#1b1b1b;
-  padding:10px;
-  border-radius:10px;
-  margin-bottom:8px;">
-
-  <b>${item.nome}</b><br>
-  Tam: ${item.tamanho}<br>
-  Valor: R$ ${item.valor}
-
-  </div>`;
-});
-    
-    lista.innerHTML += `
-
-    <div style="
-    background:#111;
-    border:1px solid #222;
-    border-radius:14px;
-    padding:15px;
-    margin-bottom:12px;">
-
-    <div style="
-    color:#ea580c;
-    font-weight:bold;
-    margin-bottom:10px;">
-
-    Pedido ${pedido.numero || ''}
-
-    </div>
-
-    ${itensHTML}
-
-    <div style="
-    margin-top:10px;
-    color:#22c55e;
-    font-weight:bold;">
-
-    Total:
-    R$ ${pedido.total || 0}
-
-    </div>
-
-    <div style="
-    margin-top:10px;
-    color:#facc15;">
-
-    Status:
-    ${pedido.status || 'Aguardando pagamento'}
-
-    </div>
-
-    </div>`;
-  });
 }
   
 function render(){
