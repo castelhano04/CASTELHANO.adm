@@ -297,6 +297,31 @@ Produtos
   <input type="number" id="custo" placeholder="Valor pago por peça">
   <input type="number" id="valor" placeholder="Valor de venda">
   <input type="text" id="tamanhos" placeholder="P:5,M:3,G:2">
+
+  <select id="categoria">
+
+<option value="">
+Selecione a categoria
+</option>
+
+<option value="Europeias">
+Camisas Europeias
+</option>
+
+<option value="Selecoes">
+Seleções
+</option>
+
+<option value="Times BR">
+Times BR
+</option>
+
+<option value="Selecao Brasileira">
+Seleção Brasileira
+</option>
+
+</select>
+  
   <button onclick="addProduto()">
     Adicionar Produto
   </button>
@@ -451,6 +476,8 @@ window.addProduto = async function(){
 
     const tamanhos =
     document.getElementById('tamanhos').value.trim();
+    const categoria =
+document.getElementById('categoria').value;
 
     if(
       files.length === 0 ||
@@ -494,20 +521,15 @@ window.addProduto = async function(){
       imagens.push(base64);
     }
 
-    await addDoc(
-  collection(db,"produtos"),
-  {
-    nome,
-    custo,
-    valor,
-    imagens,
-    tamanhos: parseTam(tamanhos),
-
-    vendidos: [], // histórico de vendas
-    totalVendido: 0,
-    lucro: 0
-  }
-);
+   await addDoc(
+collection(db,"produtos"),
+{
+nome,
+categoria,
+custo,
+valor,
+imagens,
+tamanhos: parseTam(tamanhos),
 
     // limpa campos
     document.getElementById('foto').value='';
