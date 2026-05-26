@@ -479,13 +479,15 @@ window.addProduto = async function(){
     const categoria =
 document.getElementById('categoria').value;
 
-    if(
-      files.length === 0 ||
-      !nome ||
-      !custo ||
-      !valor ||
-      !tamanhos
-    ){
+   if(
+  files.length === 0 ||
+  !nome ||
+  !custo ||
+  !valor ||
+  !tamanhos ||
+  !categoria
+)
+     
       alert('Preencha tudo');
       return;
     }
@@ -521,26 +523,29 @@ document.getElementById('categoria').value;
       imagens.push(base64);
     }
 
-   await addDoc(
-collection(db,"produtos"),
-{
-nome,
-categoria,
-custo,
-valor,
-imagens,
-tamanhos: parseTam(tamanhos),
+  await addDoc(
+  collection(db,"produtos"),
+  {
+    nome,
+    categoria,
+    custo,
+    valor,
+    imagens,
+    tamanhos: parseTam(tamanhos)
+  }
+);
 
-    // limpa campos
-    document.getElementById('foto').value='';
-    document.getElementById('nome').value='';
-    document.getElementById('custo').value='';
-    document.getElementById('valor').value='';
-    document.getElementById('tamanhos').value='';
+// limpa campos
+document.getElementById('foto').value='';
+document.getElementById('nome').value='';
+document.getElementById('custo').value='';
+document.getElementById('valor').value='';
+document.getElementById('tamanhos').value='';
+document.getElementById('categoria').value='';
 
-    await carregar();
+await carregar();
 
-    alert('Produto adicionado!');
+alert('Produto adicionado!');
 
   }catch(e){
 
