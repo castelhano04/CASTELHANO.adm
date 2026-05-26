@@ -183,10 +183,19 @@ body{
   flex-direction:column;
 }
 
-/* FOTO */
+/* CARD MENOR E MAIS COMPACTO */
+.card{
+  background:#111;
+  border:1px solid #222;
+  border-radius:8px;
+  overflow:hidden;
+}
+
+/* FOTO MENOR */
 .fotos-container{
+  position:relative;
   width:100%;
-  height:140px; /* TAMANHO FIXO PEQUENO */
+  height:115px; /* antes 170px */
   background:#181818;
   overflow:hidden;
   display:flex;
@@ -194,138 +203,72 @@ body{
   justify-content:center;
 }
 
-/* IMAGEM */
-.card img{
+.produto-img{
   width:100%;
   height:100%;
   object-fit:contain;
-  padding:6px;
+  padding:4px;
 }
 
-/* INFORMAÇÕES */
+/* INFORMAÇÕES MAIS COMPACTAS */
 .info{
-  padding:6px;
+  padding:5px;
 }
 
-/* NOME */
 .nome{
-  font-size:11px;
+  font-size:10px;
   font-weight:600;
-  line-height:1.2;
-  margin-bottom:4px;
-
-  display:-webkit-box;
-  -webkit-line-clamp:2;
-  -webkit-box-orient:vertical;
-  overflow:hidden;
-
-  min-height:26px;
+  line-height:1.1;
+  min-height:20px;
+  margin-bottom:2px;
 }
 
-/* PREÇO */
 .preco{
   color:#22c55e;
-  font-size:15px;
+  font-size:13px;
   font-weight:bold;
-  margin-bottom:5px;
+  margin-bottom:4px;
 }
 
-/* TAMANHOS */
 .tamanho{
   background:#181818;
-  border-radius:6px;
-  padding:4px 6px;
-  margin-bottom:4px;
+  border-radius:5px;
+  padding:3px 5px;
+  margin-bottom:3px;
+  font-size:9px;
 
   display:flex;
   justify-content:space-between;
   align-items:center;
-
-  font-size:10px;
 }
 
-/* BOTÃO VENDER */
+/* BOTÃO + MENOR */
 .btn-vender{
-  width:20px;
-  height:20px;
-  min-width:20px;
+  width:18px;
+  height:18px;
+  min-width:18px;
   border:none;
   border-radius:50%;
   background:#22c55e;
   color:#fff;
-  font-size:12px;
-  font-weight:bold;
+  font-size:10px;
   cursor:pointer;
 }
 
-/* BOTÕES */
+/* BOTÕES MENORES */
 .botoes{
   display:flex;
-  gap:4px;
-  margin-top:6px;
+  gap:3px;
+  margin-top:4px;
 }
 
 .edit,
 .delete{
   flex:1;
   border:none;
-  border-radius:6px;
-  padding:6px;
-  font-size:10px;
-  cursor:pointer;
-}
-
-.edit{
-  background:#2563eb;
-  color:white;
-}
-
-.delete{
-  background:#dc2626;
-  color:white;
-}
-
-/* MOBILE */
-@media(max-width:600px){
-
-  .grid{
-    gap:5px;
-  }
-
-  .card{
-    border-radius:8px;
-  }
-
-  .fotos-container{
-    height:120px;
-  }
-
-  .nome{
-    font-size:10px;
-    min-height:22px;
-  }
-
-  .preco{
-    font-size:14px;
-  }
-
-  .tamanho{
-    font-size:9px;
-    padding:4px 5px;
-  }
-
-  .btn-vender{
-    width:18px;
-    height:18px;
-    min-width:18px;
-    font-size:10px;
-  }
-
-  .edit,
-  .delete{
-    font-size:9px;
-    padding:5px;
-  }
+  border-radius:5px;
+  padding:5px;
+  font-size:9px;
 }
   
 .ranking{
