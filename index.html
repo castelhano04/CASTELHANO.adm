@@ -589,6 +589,24 @@ window.trocarTab = function(tab){
   }
 }
   
+  function parseTam(str){
+
+  let obj = {};
+
+  str.split(',').forEach(item=>{
+
+    let [tam,qtd] = item.split(':');
+
+    obj[tam.trim()] = {
+      total:Number(qtd),
+      vendido:0
+    };
+
+  });
+
+  return obj;
+}
+  
 window.addProduto = async function(){
 
   try{
