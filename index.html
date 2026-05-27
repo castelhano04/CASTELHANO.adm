@@ -418,14 +418,18 @@ const db = getFirestore(appFirebase);
 
 let produtos = [];
 
-window.logar = function(){
+function logar(){
 
-  let senha = document.getElementById('senha').value;
+  let senha =
+  document.getElementById('senha').value;
 
   if(senha === '161004'){
 
-    document.getElementById('login').style.display = 'none';
-    document.getElementById('app').style.display = 'block';
+    document.getElementById('login')
+    .style.display = 'none';
+
+    document.getElementById('app')
+    .style.display = 'block';
 
     carregar();
 
@@ -433,6 +437,8 @@ window.logar = function(){
     alert('Senha incorreta');
   }
 }
+
+window.logar = logar;
 
 async function carregar(){
 
