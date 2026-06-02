@@ -1022,10 +1022,15 @@ document.getElementById('lucro').innerText =
 
   lista.innerHTML = '';
 
-  const snap =
-  await getDocs(
-    collection(db,'pedidos')
-  );
+ const snap =
+await getDocs(
+  collection(db,'pedidos')
+);
+
+console.log(
+  'Pedidos encontrados:',
+  snap.size
+);
 
   snap.forEach(docPedido=>{
 
