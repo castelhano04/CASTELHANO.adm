@@ -329,16 +329,11 @@ body{
 </div>
 
 <div class="tabs">
-  <div class="tab ativo"
-  onclick="trocarTab('add')">
-  Adicionar
-  </div>
-
- <div class="tab"
-onclick="trocarTab('produtos')">
-Produtos
+  <div class="tab ativo" onclick="trocarTab('add')">Adicionar</div>
+  <div class="tab" onclick="trocarTab('produtos')">Produtos</div>
+  <div class="tab" onclick="trocarTab('pedidos')">Pedidos</div>
 </div>
-
+  
 </div> <!-- FECHA TABS -->
 
 <div id="add" class="form">
@@ -393,6 +388,18 @@ Seleção Brasileira
 </div>
 
 <div id="produtos" style="display:none">
+
+  <div id="pedidos" style="display:none">
+
+  <div class="ranking">
+    <h2>📦 Pedidos Pendentes</h2>
+
+    <div id="listaPedidos"></div>
+
+  </div>
+
+</div>
+  
   <div class="grid" id="listaProdutos"></div>
 
   <div class="ranking">
@@ -407,13 +414,14 @@ import { initializeApp }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 
 import {
-  getFirestore,
-  collection,
-  addDoc,
-  getDocs,
-  updateDoc,
-  deleteDoc,
-  doc
+getFirestore,
+collection,
+getDocs,
+addDoc,
+doc,
+getDoc,
+deleteDoc,
+updateDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -477,11 +485,9 @@ async function carregar(){
   
 window.trocarTab = function(tab){
 
-  document.getElementById('add')
-  .style.display='none';
-
-  document.getElementById('produtos')
-  .style.display='none';
+ document.getElementById('add').style.display = 'none';
+document.getElementById('produtos').style.display = 'none';
+document.getElementById('pedidos').style.display = 'none';
 
   document
   .querySelectorAll('.tab')
@@ -489,26 +495,40 @@ window.trocarTab = function(tab){
     t.classList.remove('ativo');
   });
 
-  if(tab === 'add'){
+ if(tab === 'add'){
 
-    document
-    .getElementById('add')
-    .style.display='block';
+  document
+  .getElementById('add')
+  .style.display='block';
 
-    document
-    .querySelectorAll('.tab')[0]
-    .classList.add('ativo');
+  document
+  .querySelectorAll('.tab')[0]
+  .classList.add('ativo');
 
-  }else{
+}
+else if(tab === 'produtos'){
 
-    document
-    .getElementById('produtos')
-    .style.display='block';
+  document
+  .getElementById('produtos')
+  .style.display='block';
 
-    document
-    .querySelectorAll('.tab')[1]
-    .classList.add('ativo');
-  }
+  document
+  .querySelectorAll('.tab')[1]
+  .classList.add('ativo');
+
+}
+else{
+
+  document
+  .getElementById('pedidos')
+  .style.display='block';
+
+  document
+  .querySelectorAll('.tab')[2]
+  .classList.add('ativo');
+
+  carregarPedidos();
+
 }
   
   function parseTam(str){
@@ -983,6 +1003,195 @@ vendidoTotal.toFixed(2);
 document.getElementById('lucro').innerText =
 (vendidoTotal - investido).toFixed(2);
 }
+
+  async function carregarPedidos(){
+
+  const lista =
+  document.getElementById('listaPedidos');
+
+  lista.innerHTML = '';
+
+  const snap =
+  await getDocs(
+    collection(db,'pedidos')
+  );
+
+  snap.forEach(docPedido=>{
+
+    const pedido = docPedido.data();
+
+    if(pedido.status !== 'reservado')
+      return;
+
+    let itens = '';
+
+    pedido.itens.forEach(item=>{
+
+      itens += `
+      ${item.nome}
+      | ${item.tamanho}
+      | ${item.quantidade}x
+      <br>
+      `;
+
+    });
+
+    lista.innerHTML += `
+    <div class="rank-item">
+
+      <b>Pedido</b><br><br>
+
+      ${itens}
+
+      <br>
+
+      Total:
+      R$ ${pedido.total.toFixed(2)}
+
+      <br><br>
+
+      <button
+      onclick="confirmarPedido('${docPedido.id}')"
+      style="background:#16a34a;margin-bottom:8px;">
+      ✅ Confirmar
+      </button>
+
+      <button
+      onclick="cancelarPedido('${docPedido.id}')"
+      style="background:#ef4444;">
+      ❌ Cancelar
+      </button>
+
+    </div>
+    `;
+
+  });
+
+}
+  async function confirmarPedido(id){
+
+const pedidoRef =
+doc(db,'pedidos',id);
+
+const pedidoSnap =
+await getDoc(pedidoRef);
+
+if(!pedidoSnap.exists()) return;
+
+const pedido =
+pedidoSnap.data();
+
+for(const item of pedido.itens){
+
+const produtoRef =
+doc(db,'produtos',item.id);
+
+const produtoSnap =
+await getDoc(produtoRef);
+
+if(!produtoSnap.exists()) continue;
+
+const produto =
+produtoSnap.data();
+
+const tamanho =
+produto.tamanhos[item.tamanho];
+
+if(!tamanho) continue;
+
+tamanho.reservado =
+(tamanho.reservado || 0)
+- item.quantidade;
+
+tamanho.vendido =
+(tamanho.vendido || 0)
++ item.quantidade;
+
+await updateDoc(
+produtoRef,
+{
+tamanhos: produto.tamanhos
+}
+);
+
+}
+
+await updateDoc(
+pedidoRef,
+{
+status:'pago'
+}
+);
+
+alert('Pedido confirmado!');
+
+carregarPedidos();
+
+}
+
+  async function cancelarPedido(id){
+
+if(!confirm('Cancelar pedido?'))
+return;
+
+const pedidoRef =
+doc(db,'pedidos',id);
+
+const pedidoSnap =
+await getDoc(pedidoRef);
+
+if(!pedidoSnap.exists()) return;
+
+const pedido =
+pedidoSnap.data();
+
+for(const item of pedido.itens){
+
+const produtoRef =
+doc(db,'produtos',item.id);
+
+const produtoSnap =
+await getDoc(produtoRef);
+
+if(!produtoSnap.exists()) continue;
+
+const produto =
+produtoSnap.data();
+
+const tamanho =
+produto.tamanhos[item.tamanho];
+
+if(!tamanho) continue;
+
+tamanho.reservado =
+Math.max(
+0,
+(tamanho.reservado || 0)
+- item.quantidade
+);
+
+await updateDoc(
+produtoRef,
+{
+tamanhos: produto.tamanhos
+}
+);
+
+}
+
+await updateDoc(
+pedidoRef,
+{
+status:'cancelado'
+}
+);
+
+alert('Pedido cancelado!');
+
+carregarPedidos();
+
+}
+  
 </script>
 
 </body>
