@@ -389,15 +389,24 @@ Seleção Brasileira
 
 <div id="produtos" style="display:none">
 
-  <div id="pedidos" style="display:none">
+  <div class="grid" id="listaProdutos"></div>
+
+  <div class="ranking">
+    <h2>🔥 Histórico de Vendas</h2>
+    <div id="historico"></div>
+  </div>
+
+</div>
+
+<div id="pedidos" style="display:none">
 
   <div class="ranking">
     <h2>📦 Pedidos Pendentes</h2>
-
     <div id="listaPedidos"></div>
-
   </div>
 
+</div>
+  
 </div>
   
   <div class="grid" id="listaProdutos"></div>
@@ -1071,7 +1080,7 @@ document.getElementById('lucro').innerText =
 
 }
   
-  async function confirmarPedido(id){
+  window.confirmarPedido = async function(id){
 
 const pedidoRef =
 doc(db,'pedidos',id);
@@ -1132,7 +1141,7 @@ carregarPedidos();
 
 }
 
-  async function cancelarPedido(id){
+  window.cancelarPedido = async function(id){
 
 if(!confirm('Cancelar pedido?'))
 return;
