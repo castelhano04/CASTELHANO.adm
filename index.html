@@ -385,6 +385,10 @@ Seleção Brasileira
   <button onclick="addProduto()">
     Adicionar Produto
   </button>
+
+  <button onclick="alternarManutencao()">
+🚧 Ativar / Desativar Manutenção
+</button>
 </div>
 
 <div id="produtos" style="display:none">
@@ -430,7 +434,8 @@ addDoc,
 doc,
 getDoc,
 deleteDoc,
-updateDoc
+updateDoc,
+setDoc
 }
 from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
@@ -1256,6 +1261,35 @@ status:'cancelado'
 alert('Pedido cancelado!');
 
 carregarPedidos();
+
+}
+
+  window.alternarManutencao = async function(){
+
+  const ref =
+  doc(db,'config','site');
+
+  const snap =
+  await getDoc(ref);
+
+  let ativo = false;
+
+  if(snap.exists()){
+    ativo = snap.data().manutencao;
+  }
+
+  await setDoc(
+    ref,
+    {
+      manutencao: !ativo
+    }
+  );
+
+  alert(
+    !ativo
+    ? '🚧 Modo manutenção ativado'
+    : '✅ Site liberado novamente'
+  );
 
 }
   
