@@ -775,22 +775,72 @@ window.excluirProduto = async function(id){
 
 window.editarProduto = async function(id){
 
-  let produto = produtos.find(p=>p.id === id);
+  let produto = produtos.find(p => p.id === id);
 
   if(!produto) return;
 
-  let novoNome = prompt('Novo nome', produto.nome);
-  let novoValor = prompt('Novo valor', produto.valor);
+  let novoNome =
+  prompt('Novo nome', produto.nome);
 
-  if(novoNome) produto.nome = novoNome;
-  if(novoValor) produto.valor = Number(novoValor);
+  let novoValor =
+  prompt('Novo valor', produto.valor);
 
-  await updateDoc(doc(db,"produtos",id),{
-    nome:produto.nome,
-    valor:produto.valor
+  let tamanhosTexto = '';
+
+  for(let t in produto.tamanhos){
+
+    const dados = produto.tamanhos[t];
+
+    tamanhosTexto +=
+    `${t}:${dados.total},`;
+
+  }
+
+  tamanhosTexto =
+  tamanhosTexto.slice(0,-1);
+
+  let novosTamanhos =
+  prompt(
+    'Tamanhos (P:5,M:3,G:2)',
+    tamanhosTexto
+  );
+
+  if(!novoNome || !novoValor || !novosTamanhos)
+    return;
+
+  let tamanhosAtualizados = {};
+
+  novosTamanhos.split(',').forEach(item=>{
+
+    let [tam,qtd] = item.split(':');
+
+    let vendidoAnterior =
+    produto.tamanhos[tam]?.vendido || 0;
+
+    let reservadoAnterior =
+    produto.tamanhos[tam]?.reservado || 0;
+
+    tamanhosAtualizados[tam.trim()] = {
+      total:Number(qtd),
+      vendido:vendidoAnterior,
+      reservado:reservadoAnterior
+    };
+
   });
 
+  await updateDoc(
+    doc(db,'produtos',id),
+    {
+      nome: novoNome,
+      valor: Number(novoValor),
+      tamanhos: tamanhosAtualizados
+    }
+  );
+
+  alert('Produto atualizado!');
+
   carregar();
+
 }
   
 let fotoAtual = {};
