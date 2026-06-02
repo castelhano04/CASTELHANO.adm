@@ -454,12 +454,37 @@ const db = getFirestore(appFirebase);
 
 let produtos = [];
 
+  function verificarLogin(){
+
+  const expiraEm =
+  localStorage.getItem('adminExpira');
+
+  if(!expiraEm) return;
+
+  if(Date.now() < Number(expiraEm)){
+
+    document.getElementById('login')
+    .style.display = 'none';
+
+    document.getElementById('app')
+    .style.display = 'block';
+
+    carregar();
+  }
+
+}
+  
 function logar(){
 
   let senha =
   document.getElementById('senha').value;
 
-  if(senha === '161004'){
+if(senha === '161004'){
+
+  localStorage.setItem(
+    'adminExpira',
+    Date.now() + (2 * 60 * 1000)
+  );
 
     document.getElementById('login')
     .style.display = 'none';
@@ -1292,6 +1317,8 @@ carregarPedidos();
   );
 
 }
+
+  verificarLogin();
   
 </script>
 
