@@ -274,46 +274,62 @@ body{
 }
 
 .ranking{
-  margin:10px;
+  margin:12px;
   background:#151515;
-  border-radius:14px;
-  padding:12px;
-  border:1px solid #252525;
+  border-radius:18px;
+  padding:14px;
+  border:1px solid #262626;
 }
 
 .ranking h2{
-  font-size:16px;
-  margin-bottom:10px;
+  font-size:20px;
+  margin-bottom:14px;
+}
+
+#historico{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(220px,1fr));
+  gap:10px;
 }
 
 .rank-item{
-  background:#1d1d1d;
-  border-radius:10px;
-  padding:8px;
-  margin-bottom:7px;
+  background:#1f1f1f;
+  border:1px solid #2e2e2e;
+  border-radius:14px;
+  padding:12px;
   font-size:12px;
   line-height:1.35;
 }
 
 .rank-item b{
-  font-size:13px;
+  display:block;
+  font-size:14px;
+  margin-bottom:5px;
 }
 
 .rank-item .botoes{
-  gap:5px;
-  margin-top:7px;
+  display:flex;
+  gap:6px;
+  margin-top:10px;
 }
 
 .rank-item button{
-  height:26px;
+  height:30px;
+  border:none;
+  border-radius:8px;
   font-size:11px;
-  border-radius:6px;
+  font-weight:bold;
+  cursor:pointer;
 }
 
-  .rank-item .edit,
+.rank-item .edit{
+  background:#2563eb;
+  color:white;
+}
+
 .rank-item .delete{
-  padding:4px;
-  font-size:11px;
+  background:#ef4444;
+  color:white;
 }
   
   
