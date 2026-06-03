@@ -938,7 +938,10 @@ for(let t in produto.tamanhos){
   let dados =
 (produto.tamanhos || {})[t];
 
-  let restante = dados.total - dados.vendido;
+ let restante =
+(dados.total || 0) -
+(dados.vendido || 0) -
+(dados.reservado || 0);
 
   totalPecasProduto += dados.total;
       vendidosProduto += dados.vendido;
