@@ -389,6 +389,10 @@ Seleção Brasileira
   <button onclick="alternarManutencao()">
 🚧 Ativar / Desativar Manutenção
 </button>
+
+<button onclick="alternarAviso()">
+⚠️ Ativar / Desativar Aviso
+</button>
 </div>
 
 <div id="produtos" style="display:none">
@@ -1319,6 +1323,34 @@ carregarPedidos();
 }
 
   verificarLogin();
+
+  window.alternarAviso = async function(){
+
+  const ref = doc(db,'config','site');
+
+  const snap = await getDoc(ref);
+
+  let ativo = false;
+
+  if(snap.exists()){
+    ativo = snap.data().mostrarAviso || false;
+  }
+
+  await setDoc(
+    ref,
+    {
+      mostrarAviso: !ativo
+    },
+    { merge:true }
+  );
+
+  alert(
+    !ativo
+    ? '⚠️ Aviso ativado'
+    : '✅ Aviso desativado'
+  );
+
+}
   
 </script>
 
