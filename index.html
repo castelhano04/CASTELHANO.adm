@@ -385,6 +385,7 @@ body{
   
   <input type="file" id="foto" multiple accept="image/*">
   <input type="text" id="nome" placeholder="Nome da camisa">
+  <input type="text" id="video" placeholder="Link do vídeo da camisa">
   <textarea
 id="descricao"
 placeholder="Descrição da camisa"
@@ -643,6 +644,9 @@ window.addProduto = async function(){
     const nome =
     document.getElementById('nome').value.trim();
 
+    const video =
+document.getElementById('video').value.trim();
+
     const descricao =
 document.getElementById('descricao').value.trim();
 
@@ -701,21 +705,23 @@ document.getElementById('categoria').value;
     }
 
 await addDoc(
-  collection(db,"produtos"),
-  {
-    nome,
-    descricao,
-    categoria,
-    custo,
-    valor,
-    imagens,
-    tamanhos: parseTam(tamanhos)
-  }
+collection(db,"produtos"),
+{
+nome,
+descricao,
+video,
+categoria,
+custo,
+valor,
+imagens,
+tamanhos: parseTam(tamanhos)
+}
 );
-
+    
 // limpa campos
 document.getElementById('foto').value='';
 document.getElementById('nome').value='';
+ document.getElementById('video').value='';
 document.getElementById('custo').value='';
 document.getElementById('valor').value='';
 document.getElementById('tamanhos').value='';
