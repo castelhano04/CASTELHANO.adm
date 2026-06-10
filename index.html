@@ -323,6 +323,67 @@ body{
   color:white;
 }
 
+/* ===== HISTÓRICO DE VENDAS ===== */
+#historico,
+#pedidos{
+  padding:12px;
+}
+
+.historico-topo{
+  margin:12px;
+  background:#151515;
+  border-radius:18px;
+  padding:14px;
+  border:1px solid #262626;
+}
+
+.historico-topo h2{
+  color:#ea580c;
+  font-size:20px;
+  margin-bottom:8px;
+}
+
+.historico-lista{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(260px,1fr));
+  gap:12px;
+  padding:12px;
+}
+
+.venda-card{
+  background:#121212;
+  border:1px solid #252525;
+  border-radius:18px;
+  padding:14px;
+  box-shadow:0 6px 20px rgba(0,0,0,.35);
+}
+
+.venda-card b{
+  color:#ea580c;
+  font-size:16px;
+}
+
+.venda-card p{
+  font-size:13px;
+  margin-top:6px;
+  color:#ddd;
+}
+
+.venda-lucro{
+  color:#22c55e;
+  font-weight:bold;
+}
+
+.venda-vazio{
+  margin:12px;
+  background:#151515;
+  border:1px dashed #333;
+  border-radius:18px;
+  padding:20px;
+  text-align:center;
+  color:#aaa;
+}
+
   video{
   display:none !important;
 }
@@ -369,8 +430,10 @@ body{
   </div>
 
   <div class="tabs">
-  <div class="tab ativo" onclick="trocarTab('add')">Adicionar</div>
-  <div class="tab" onclick="trocarTab('produtos')">Produtos</div>
+  <div class="tab ativo" data-tab="add" onclick="trocarTab('add')">Adicionar</div>
+  <div class="tab" data-tab="produtos" onclick="trocarTab('produtos')">Produtos</div>
+  <div class="tab" data-tab="pedidos" onclick="trocarTab('pedidos')">Pedidos</div>
+  <div class="tab" data-tab="historico" onclick="trocarTab('historico')">Histórico</div>
 </div>
   
 </div> <!-- FECHA TABS -->
@@ -438,6 +501,21 @@ Seleção Brasileira
 
   <div class="grid" id="listaProdutos"></div>
 
+</div>
+
+<div id="pedidos" style="display:none">
+  <div class="venda-vazio">
+    Aba de pedidos pronta para próxima etapa.
+  </div>
+</div>
+
+<div id="historico" style="display:none">
+  <div class="historico-topo">
+    <h2>Histórico de Vendas</h2>
+    <p>Todas as vendas feitas pelo botão + aparecem aqui automaticamente.</p>
+  </div>
+
+  <div class="historico-lista" id="listaHistorico"></div>
 </div>
 
 </div>
@@ -545,28 +623,29 @@ async function carregar(){
   
 window.trocarTab = function(tab){
 
-document.getElementById('add').style.display = 'none';
-document.getElementById('produtos').style.display = 'none';
+  document.getElementById('add').style.display = 'none';
+  document.getElementById('produtos').style.display = 'none';
+  document.getElementById('pedidos').style.display = 'none';
+  document.getElementById('historico').style.display = 'none';
 
-document
-.querySelectorAll('.tab')
-.forEach(t=>{
-t.classList.remove('ativo');
-});
+  document
+  .querySelectorAll('.tab')
+  .forEach(t=>{
+    t.classList.remove('ativo');
+  });
 
-if(tab === 'add'){
+  document.getElementById(tab).style.display = 'block';
 
-document.getElementById('add').style.display='block';
-document.querySelectorAll('.tab')[0]
-.classList.add('ativo');
+  const tabAtiva =
+  document.querySelector(`.tab[data-tab="${tab}"]`);
 
-}else{
+  if(tabAtiva){
+    tabAtiva.classList.add('ativo');
+  }
 
-document.getElementById('produtos').style.display='block';
-document.querySelectorAll('.tab')[1]
-.classList.add('ativo');
-
-}
+  if(tab === 'historico'){
+    renderHistoricoVendas();
+  }
 
 }
   
@@ -962,9 +1041,73 @@ function renderResumoFinanceiro(){
   formatarMoeda(lucroTotal);
 }
   
+function renderHistoricoVendas(){
+
+  const lista =
+  document.getElementById('listaHistorico');
+
+  if(!lista) return;
+
+  let vendas = [];
+
+  produtos.forEach(produto=>{
+
+    if(!produto.vendidos || !Array.isArray(produto.vendidos)) return;
+
+    produto.vendidos.forEach((venda,index)=>{
+
+      vendas.push({
+        produtoId: produto.id,
+        produtoNome: produto.nome,
+        index,
+        ...venda
+      });
+
+    });
+
+  });
+
+  vendas.reverse();
+
+  if(vendas.length === 0){
+    lista.innerHTML = `
+    <div class="venda-vazio">
+      Nenhuma venda registrada ainda.
+    </div>`;
+    return;
+  }
+
+  lista.innerHTML = '';
+
+  vendas.forEach(venda=>{
+
+    const valor = Number(venda.valor || 0);
+    const custo = Number(venda.custo || 0);
+    const lucro = Number(
+      venda.lucro != null
+      ? venda.lucro
+      : valor - custo
+    );
+
+    lista.innerHTML += `
+    <div class="venda-card">
+      <b>${venda.produtoNome}</b>
+      <p><strong>Tamanho:</strong> ${venda.tamanho || '-'}</p>
+      <p><strong>Venda:</strong> ${formatarMoeda(valor)}</p>
+      <p><strong>Custo:</strong> ${formatarMoeda(custo)}</p>
+      <p><strong>Lucro:</strong> <span class="venda-lucro">${formatarMoeda(lucro)}</span></p>
+      <p><strong>Pagamento:</strong> ${venda.pagamento || 'Não informado'}</p>
+      <p><strong>Data:</strong> ${venda.data || '-'}</p>
+    </div>`;
+
+  });
+
+}
+  
 function render(){
 
 renderResumoFinanceiro();
+renderHistoricoVendas();
 
 const lista =
 document.getElementById('listaProdutos');
