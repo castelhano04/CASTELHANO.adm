@@ -1076,6 +1076,12 @@ onclick="editarVendas('${produto.id}')">
 Editar Vendas
 </button>
 
+<button
+style="background:#8b5cf6;color:white;"
+onclick="gerenciarMidia('${produto.id}')">
+Mídia
+</button>
+
 <button class="delete"
 onclick="excluirProduto('${produto.id}')">
 Excluir
@@ -1670,7 +1676,71 @@ window.adicionarMidia = async function(id){
   alert('Opção inválida');
 
 }
-  
+
+  window.gerenciarMidia = async function(id){
+
+const produto =
+produtos.find(p => p.id === id);
+
+if(!produto) return;
+
+const opcao = prompt(
+'1 - Adicionar Fotos\n\n2 - Adicionar Vídeo'
+);
+
+if(opcao === '1'){
+
+const urls = prompt(
+'Cole os links das novas fotos separados por vírgula'
+);
+
+if(!urls) return;
+
+const novasFotos =
+urls.split(',')
+.map(f => f.trim())
+.filter(f => f);
+
+produto.imagens = [
+...(produto.imagens || []),
+...novasFotos
+];
+
+await updateDoc(
+doc(db,'produtos',id),
+{
+imagens: produto.imagens
+}
+);
+
+alert('Fotos adicionadas!');
+
+carregarProdutos();
+
+}
+
+if(opcao === '2'){
+
+const video = prompt(
+'Cole o link do vídeo'
+);
+
+if(!video) return;
+
+await updateDoc(
+doc(db,'produtos',id),
+{
+video: video.trim()
+}
+);
+
+alert('Vídeo atualizado!');
+
+carregarProdutos();
+
+}
+
+}
   
 </script>
 
