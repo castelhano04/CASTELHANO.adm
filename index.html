@@ -1128,6 +1128,11 @@ Excluir
     Editar
     </button>
 
+    <button class="edit"
+onclick="adicionarMidia('${produto.id}')">
++ Foto/Vídeo
+</button>
+
     <button class="delete"
     onclick="excluirProduto('${item.id}')">
     Excluir
@@ -1566,6 +1571,103 @@ carregarPedidos();
   alert('Vendas atualizadas!');
 
   carregar();
+
+}
+
+window.adicionarMidia = async function(id){
+
+  const produto =
+  produtos.find(p => p.id === id);
+
+  if(!produto) return;
+
+  const tipo =
+  prompt('O que deseja adicionar?\n\n1 - Foto\n2 - Vídeo');
+
+  if(tipo === '1'){
+
+    const input =
+    document.createElement('input');
+
+    input.type = 'file';
+    input.accept = 'image/*';
+    input.multiple = true;
+
+    input.onchange = async function(){
+
+      const files = input.files;
+
+      if(!files || files.length === 0) return;
+
+      let novasImagens = [];
+
+      for(let file of files){
+
+        if(file.size > 800000){
+          alert('Imagem muito pesada. Máximo 800KB por foto');
+          return;
+        }
+
+        const base64 =
+        await new Promise((resolve,reject)=>{
+
+          const reader = new FileReader();
+
+          reader.onload = () => resolve(reader.result);
+          reader.onerror = reject;
+
+          reader.readAsDataURL(file);
+
+        });
+
+        novasImagens.push(base64);
+      }
+
+      produto.imagens = [
+        ...(produto.imagens || []),
+        ...novasImagens
+      ];
+
+      await updateDoc(
+        doc(db,'produtos',id),
+        {
+          imagens: produto.imagens
+        }
+      );
+
+      alert('Foto(s) adicionada(s)!');
+
+      carregar();
+
+    };
+
+    input.click();
+
+    return;
+  }
+
+  if(tipo === '2'){
+
+    const link =
+    prompt('Cole o link do vídeo MP4 da camisa:');
+
+    if(!link) return;
+
+    await updateDoc(
+      doc(db,'produtos',id),
+      {
+        video: link.trim()
+      }
+    );
+
+    alert('Vídeo adicionado!');
+
+    carregar();
+
+    return;
+  }
+
+  alert('Opção inválida');
 
 }
   
