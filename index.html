@@ -345,6 +345,29 @@ body{
 <div class="topo">
   <div class="logo">Castelhano Sport's</div>
 
+  <!-- CONTROLE FINANCEIRO - APARECE NO INÍCIO APÓS LOGIN -->
+  <div class="resumo">
+    <div class="box">
+      <b>Investimento</b><br>
+      <span id="totalInvestimento">R$ 0,00</span>
+    </div>
+
+    <div class="box">
+      <b>Estoque</b><br>
+      <span id="totalEstoque">R$ 0,00</span>
+    </div>
+
+    <div class="box">
+      <b>Vendido</b><br>
+      <span id="totalVendido">R$ 0,00</span>
+    </div>
+
+    <div class="box">
+      <b>Lucro</b><br>
+      <span id="totalLucro">R$ 0,00</span>
+    </div>
+  </div>
+
   <div class="tabs">
   <div class="tab ativo" onclick="trocarTab('add')">Adicionar</div>
   <div class="tab" onclick="trocarTab('produtos')">Produtos</div>
@@ -648,6 +671,7 @@ tamanhos: parseTam(tamanhos)
 // limpa campos
 document.getElementById('foto').value='';
 document.getElementById('nome').value='';
+document.getElementById('descricao').value='';
 document.getElementById('custo').value='';
 document.getElementById('valor').value='';
 document.getElementById('tamanhos').value='';
@@ -881,7 +905,66 @@ produto.imagens?.length
   imagens[fotoAtual[id]];
 }
   
+
+function formatarMoeda(valor){
+  return valor.toLocaleString('pt-BR', {
+    style: 'currency',
+    currency: 'BRL'
+  });
+}
+
+function renderResumoFinanceiro(){
+
+  let investimentoTotal = 0;
+  let estoqueTotal = 0;
+  let vendidoTotal = 0;
+  let investimentoVendido = 0;
+
+  produtos.forEach(produto=>{
+
+    const custo = Number(produto.custo || 0);
+    const valor = Number(produto.valor || 0);
+
+    if(!produto.tamanhos) return;
+
+    for(let t in produto.tamanhos){
+
+      const dados = produto.tamanhos[t];
+
+      const total = Number(dados.total || 0);
+      const vendido = Number(dados.vendido || 0);
+      const reservado = Number(dados.reservado || 0);
+
+      const restante = Math.max(
+        0,
+        total - vendido - reservado
+      );
+
+      investimentoTotal += custo * total;
+      estoqueTotal += valor * restante;
+      vendidoTotal += valor * vendido;
+      investimentoVendido += custo * vendido;
+    }
+  });
+
+  const lucroTotal = vendidoTotal - investimentoVendido;
+
+  document.getElementById('totalInvestimento').innerText =
+  formatarMoeda(investimentoTotal);
+
+  document.getElementById('totalEstoque').innerText =
+  formatarMoeda(estoqueTotal);
+
+  document.getElementById('totalVendido').innerText =
+  formatarMoeda(vendidoTotal);
+
+  document.getElementById('totalLucro').innerText =
+  formatarMoeda(lucroTotal);
+}
+  
 function render(){
+
+renderResumoFinanceiro();
 
 const lista =
 document.getElementById('listaProdutos');
