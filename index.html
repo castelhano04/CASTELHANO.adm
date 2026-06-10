@@ -442,11 +442,6 @@ Seleção Brasileira
 
 <div id="pedidos" style="display:none">
 
-  <div class="ranking">
-    <h2>📦 Pedidos Pendentes</h2>
-    <div id="listaPedidos"></div>
-  </div>
-
 </div>
   
 </div>
@@ -1050,11 +1045,6 @@ onclick="reporEstoque('${produto.id}')">
 Repor Estoque
 </button>
 
-<button class="edit"
-onclick="editarVendas('${produto.id}')">
-Editar Vendas
-</button>
-
 <button
 style="background:#8b5cf6;color:white;"
 onclick="gerenciarMidia('${produto.id}')">
@@ -1463,51 +1453,6 @@ carregarPedidos();
   );
 
   alert('Estoque atualizado!');
-
-  carregar();
-
-}
-  window.editarVendas = async function(id){
-
-  const produto =
-  produtos.find(p => p.id === id);
-
-  if(!produto) return;
-
-  const tamanho =
-  prompt('Qual tamanho deseja editar as vendas? Ex: P, M, G, GG');
-
-  if(!tamanho) return;
-
-  const tam =
-  tamanho.trim().toUpperCase();
-
-  if(!produto.tamanhos[tam]){
-    alert('Esse tamanho não existe nesse produto');
-    return;
-  }
-
-  const vendaAtual =
-  produto.tamanhos[tam].vendido || 0;
-
-  const novaQtd =
-  Number(prompt(`Quantidade vendida atual: ${vendaAtual}\nNova quantidade vendida:`));
-
-  if(novaQtd < 0 || isNaN(novaQtd)){
-    alert('Quantidade inválida');
-    return;
-  }
-
-  produto.tamanhos[tam].vendido = novaQtd;
-
-  await updateDoc(
-    doc(db,'produtos',id),
-    {
-      tamanhos: produto.tamanhos
-    }
-  );
-
-  alert('Vendas atualizadas!');
 
   carregar();
 
