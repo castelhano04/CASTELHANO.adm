@@ -418,7 +418,8 @@ Seleção Brasileira
 </div>
 
 <div id="pedidos" style="display:none">
-
+  <div id="listaPedidos"></div>
+</div>
 </div>
   
 </div>
@@ -912,112 +913,77 @@ produto.imagens?.length
   
 function render(){
 
-  const lista = document.getElementById('listaProdutos');
-  
-  let investido = 0;
-  let estoque = 0;
-  let vendidoTotal = 0;
+const lista =
+document.getElementById('listaProdutos');
 
-  let ranking = [];
+lista.innerHTML = '';
 
-  produtos.forEach(produto=>{
+produtos.forEach(produto=>{
 
-    let htmlTam = '';
-    let vendidosProduto = 0;
-    let estoqueProduto = 0;
-   let totalPecasProduto = 0;
+let htmlTam = '';
 
 if(!produto.tamanhos) return;
 
 for(let t in produto.tamanhos){
-  
-  let dados =
-(produto.tamanhos || {})[t];
 
- let restante =
+let dados =
+produto.tamanhos[t];
+
+let restante = Math.max(
+0,
 (dados.total || 0) -
 (dados.vendido || 0) -
-(dados.reservado || 0);
+(dados.reservado || 0)
+);
 
-  totalPecasProduto += dados.total;
-      vendidosProduto += dados.vendido;
+htmlTam += `
+<div class="tamanho">
+<span>${t}: ${restante} restantes</span>
 
-      estoqueProduto += restante;
+<button class="btn-vender"
+onclick="vender('${produto.id}','${t}')">
++
+</button>
+</div>`;
+}
 
-      // TOTAL VENDIDO
-      vendidoTotal += dados.vendido * produto.valor;
+lista.innerHTML += `
+<div class="card">
 
-     
-      // VALOR EM ESTOQUE
-      estoque += restante * produto.valor;
+<div class="fotos-container">
 
-      htmlTam += `
-      <div class="tamanho">
+<img id="foto-${produto.id}"
+class="produto-img"
+src="${
+produto.imagens?.[0]
+|| produto.img
+|| 'https://via.placeholder.com/300x300?text=Sem+Imagem'
+}">
 
-        <span>
-        ${t}: ${restante} restantes
-        </span>
+${
+(produto.imagens?.length || 0) > 1
+? `
+<button class="foto-btn foto-prev"
+onclick="trocarFoto('${produto.id}',-1)">❮</button>
 
-        <button class="btn-vender"
-        onclick="vender('${produto.id}','${t}')">
-        +
-        </button>
+<button class="foto-btn foto-next"
+onclick="trocarFoto('${produto.id}',1)">❯</button>
+`
+: ''
+}
 
-      </div>`;
-    }
+</div>
 
-    // INVESTIMENTO TOTAL
-  investido += totalPecasProduto * produto.custo;
-    
-// MOSTRAR SOMENTE SE TIVER ESTOQUE
-if(true){
+<div class="info">
 
-  lista.innerHTML += `
-  <div class="card">
+<div class="nome">${produto.nome}</div>
+<div class="preco">R$ ${produto.valor}</div>
 
-    <div class="fotos-container">
+${htmlTam}
 
-      <img id="foto-${produto.id}"
-      class="produto-img"
-      src="${
-        produto.imagens?.[0]
-        || produto.img
-        || 'https://via.placeholder.com/300x300?text=Sem+Imagem'
-      }">
+<div class="botoes">
 
-      ${
-        (produto.imagens?.length || 0) > 1
-        ? `
-        <button class="foto-btn foto-prev"
-        onclick="trocarFoto('${produto.id}',-1)">
-        ❮
-        </button>
-
-        <button class="foto-btn foto-next"
-        onclick="trocarFoto('${produto.id}',1)">
-        ❯
-        </button>
-        `
-        : ''
-      }
-
-    </div>
-
-    <div class="info">
-
-      <div class="nome">
-        ${produto.nome}
-      </div>
-
-      <div class="preco">
-        R$ ${produto.valor}
-      </div>
-
-      ${htmlTam}
-
-      <div class="botoes">
-
-        <button class="edit"
+<button class="edit"
 onclick="reporEstoque('${produto.id}')">
 Repor Estoque
 </button>
@@ -1033,21 +999,13 @@ onclick="excluirProduto('${produto.id}')">
 Excluir
 </button>
 
-      </div>
+</div>
 
-    </div>
+</div>
+</div>`;
+});
 
-  </div>`;
-  
 }
-    ranking.push({
-      id: produto.id,
-      nome: produto.nome,
-      vendidos: vendidosProduto,
-      tamanhos: produto.tamanhos
-    });
-
-  });
 
      async function carregarPedidos(){
 
