@@ -385,7 +385,6 @@ body{
   
   <input type="file" id="foto" multiple accept="image/*">
   <input type="text" id="nome" placeholder="Nome da camisa">
-  <input type="text" id="video" placeholder="Link do vídeo da camisa">
   <textarea
 id="descricao"
 placeholder="Descrição da camisa"
@@ -644,10 +643,7 @@ window.addProduto = async function(){
     const nome =
     document.getElementById('nome').value.trim();
 
-    const video =
-document.getElementById('video').value.trim();
-
-    const descricao =
+        const descricao =
 document.getElementById('descricao').value.trim();
 
     const custo =
@@ -709,7 +705,6 @@ collection(db,"produtos"),
 {
 nome,
 descricao,
-video,
 categoria,
 custo,
 valor,
@@ -721,7 +716,6 @@ tamanhos: parseTam(tamanhos)
 // limpa campos
 document.getElementById('foto').value='';
 document.getElementById('nome').value='';
- document.getElementById('video').value='';
 document.getElementById('custo').value='';
 document.getElementById('valor').value='';
 document.getElementById('tamanhos').value='';
@@ -1652,27 +1646,6 @@ window.adicionarMidia = async function(id){
     return;
   }
 
-  if(tipo === '2'){
-
-    const link =
-    prompt('Cole o link do vídeo MP4 da camisa:');
-
-    if(!link) return;
-
-    await updateDoc(
-      doc(db,'produtos',id),
-      {
-        video: link.trim()
-      }
-    );
-
-    alert('Vídeo adicionado!');
-
-    carregar();
-
-    return;
-  }
-
   alert('Opção inválida');
 
 }
@@ -1718,28 +1691,6 @@ alert('Fotos adicionadas!');
 carregarProdutos();
 
 }
-
-if(opcao === '2'){
-
-const video = prompt(
-'Cole o link do vídeo'
-);
-
-if(!video) return;
-
-await updateDoc(
-doc(db,'produtos',id),
-{
-video: video.trim()
-}
-);
-
-alert('Vídeo atualizado!');
-
-carregarProdutos();
-
-}
-
 }
   
 </script>
