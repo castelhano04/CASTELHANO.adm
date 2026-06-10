@@ -444,11 +444,6 @@ Seleção Brasileira
 
   <div class="grid" id="listaProdutos"></div>
 
-  <div class="ranking">
-    <h2>🔥 Histórico de Vendas</h2>
-    <div id="historico"></div>
-  </div>
-
 </div>
 
 <div id="pedidos" style="display:none">
@@ -952,11 +947,7 @@ produto.imagens?.length
 function render(){
 
   const lista = document.getElementById('listaProdutos');
-  const historico = document.getElementById('historico');
-
-  lista.innerHTML = '';
-  historico.innerHTML = '';
-
+  
   let investido = 0;
   let estoque = 0;
   let vendidoTotal = 0;
@@ -1097,53 +1088,7 @@ Excluir
 
   });
 
-  // ORDENA MAIS VENDIDOS
-  ranking.sort((a,b)=>b.vendidos-a.vendidos);
-
-  ranking.forEach(item=>{
-
-    let detalhes = '';
-
-    for(let t in item.tamanhos){
-
-      detalhes += `
-      ${t}: ${item.tamanhos[t].vendido} vendidos<br>
-      `;
-    }
-
-    historico.innerHTML += `
-
-<div class="rank-item">
-
-  <b>${item.nome}</b><br>
-
-  Total vendido: ${item.vendidos}<br><br>
-
-  ${detalhes}
-
-  <div class="botoes">
-
-    <button class="edit"
-    onclick="editarProduto('${item.id}')">
-    Editar
-    </button>
-
-    <button class="edit"
-onclick="adicionarMidia('${produto.id}')">
-+ Foto/Vídeo
-</button>
-
-    <button class="delete"
-    onclick="excluirProduto('${item.id}')">
-    Excluir
-    </button>
-
-  </div>
-
-</div>`;
-});
-
-  // ATUALIZA RESUMO
+    // ATUALIZA RESUMO
   document.getElementById('investido').innerText =
 investido.toFixed(2);
 
