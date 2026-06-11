@@ -384,6 +384,103 @@ body{
   color:#aaa;
 }
 
+
+/* ===== PEDIDOS ===== */
+.pedidos-topo{
+  margin:12px;
+  background:#151515;
+  border-radius:18px;
+  padding:14px;
+  border:1px solid #262626;
+}
+
+.pedidos-topo h2{
+  color:#ea580c;
+  font-size:20px;
+  margin-bottom:8px;
+}
+
+.pedidos-acoes{
+  display:flex;
+  gap:10px;
+  margin-top:12px;
+  flex-wrap:wrap;
+}
+
+.pedidos-acoes button,
+.pedido-card button{
+  border:none;
+  border-radius:10px;
+  padding:10px;
+  color:white;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.btn-novo-pedido{
+  background:#ea580c;
+}
+
+.pedidos-lista{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(280px,1fr));
+  gap:12px;
+  padding:12px;
+}
+
+.pedido-card{
+  background:#121212;
+  border:1px solid #252525;
+  border-radius:18px;
+  padding:14px;
+  box-shadow:0 6px 20px rgba(0,0,0,.35);
+}
+
+.pedido-card b{
+  color:#ea580c;
+  font-size:16px;
+}
+
+.pedido-card p{
+  font-size:13px;
+  margin-top:6px;
+  color:#ddd;
+}
+
+.status-pedido{
+  display:inline-block;
+  margin-top:8px;
+  padding:5px 9px;
+  border-radius:999px;
+  background:#1f2937;
+  color:#fff;
+  font-size:12px;
+  font-weight:bold;
+}
+
+.pedido-botoes{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:8px;
+  margin-top:12px;
+}
+
+.btn-confirmar{
+  background:#22c55e;
+}
+
+.btn-status{
+  background:#3b82f6;
+}
+
+.btn-cancelar{
+  background:#f97316;
+}
+
+.btn-excluir-pedido{
+  background:#ef4444;
+}
+
   video{
   display:none !important;
 }
@@ -504,9 +601,16 @@ Seleção Brasileira
 </div>
 
 <div id="pedidos" style="display:none">
-  <div class="venda-vazio">
-    Aba de pedidos pronta para próxima etapa.
+  <div class="pedidos-topo">
+    <h2>Pedidos</h2>
+    <p>Pedidos recebidos do catálogo ou cadastrados manualmente. Só baixa estoque quando você clicar em Confirmar venda.</p>
+
+    <div class="pedidos-acoes">
+      <button class="btn-novo-pedido" onclick="novoPedidoManual()">+ Novo pedido manual</button>
+    </div>
   </div>
+
+  <div class="pedidos-lista" id="listaPedidos"></div>
 </div>
 
 <div id="historico" style="display:none">
@@ -552,6 +656,7 @@ const appFirebase = initializeApp(firebaseConfig);
 const db = getFirestore(appFirebase);
 
 let produtos = [];
+let pedidos = [];
 
   function verificarLogin(){
 
@@ -618,6 +723,22 @@ async function carregar(){
 
   });
 
+  let snapPedidos =
+  await getDocs(
+    collection(db,"pedidos")
+  );
+
+  pedidos = [];
+
+  snapPedidos.forEach(docu=>{
+
+    pedidos.push({
+      id: docu.id,
+      ...docu.data()
+    });
+
+  });
+
   render();
 }
   
@@ -645,6 +766,10 @@ window.trocarTab = function(tab){
 
   if(tab === 'historico'){
     renderHistoricoVendas();
+  }
+
+  if(tab === 'pedidos'){
+    renderPedidos();
   }
 
 }
@@ -1041,6 +1166,334 @@ function renderResumoFinanceiro(){
   formatarMoeda(lucroTotal);
 }
   
+
+function montarOpcoesProdutos(){
+
+  let opcoes = '';
+
+  produtos.forEach((produto,index)=>{
+
+    opcoes += `${index + 1} - ${produto.nome} | R$ ${Number(produto.valor || 0).toFixed(2)}
+`;
+
+  });
+
+  return opcoes;
+}
+
+window.novoPedidoManual = async function(){
+
+  if(produtos.length === 0){
+    alert('Cadastre um produto primeiro.');
+    return;
+  }
+
+  const cliente =
+  prompt('Nome do cliente:');
+
+  if(!cliente) return;
+
+  const telefone =
+  prompt('Telefone/WhatsApp do cliente:') || '';
+
+  const escolha =
+  Number(prompt(
+`Escolha o produto:
+
+${montarOpcoesProdutos()}`
+  ));
+
+  if(!escolha || escolha < 1 || escolha > produtos.length){
+    alert('Produto inválido.');
+    return;
+  }
+
+  const produto = produtos[escolha - 1];
+
+  let tamanhosDisponiveis = '';
+
+  for(let t in produto.tamanhos){
+    const dados = produto.tamanhos[t];
+    const restante = Math.max(
+      0,
+      Number(dados.total || 0) -
+      Number(dados.vendido || 0) -
+      Number(dados.reservado || 0)
+    );
+
+    tamanhosDisponiveis += `${t}: ${restante} restante(s)\n`;
+  }
+
+  const tamanho =
+  prompt(
+`Qual tamanho?
+
+${tamanhosDisponiveis}`
+  );
+
+  if(!tamanho) return;
+
+  const tam = tamanho.trim().toUpperCase();
+
+  if(!produto.tamanhos[tam]){
+    alert('Esse tamanho não existe nesse produto.');
+    return;
+  }
+
+  const valorPedido =
+  Number(prompt('Valor do pedido:', produto.valor));
+
+  if(!valorPedido || valorPedido <= 0){
+    alert('Valor inválido.');
+    return;
+  }
+
+  const formaPagamento = prompt(
+`Forma de pagamento:
+
+1 - PIX
+2 - Dinheiro
+3 - Cartão
+4 - Parcelado`
+  );
+
+  let pagamento = 'Não informado';
+
+  if(formaPagamento === '1') pagamento = 'PIX';
+  if(formaPagamento === '2') pagamento = 'Dinheiro';
+  if(formaPagamento === '3') pagamento = 'Cartão';
+  if(formaPagamento === '4') pagamento = 'Parcelado';
+
+  await addDoc(
+    collection(db,'pedidos'),
+    {
+      cliente: cliente.trim(),
+      telefone,
+      produtoId: produto.id,
+      produtoNome: produto.nome,
+      tamanho: tam,
+      valor: valorPedido,
+      custo: Number(produto.custo || 0),
+      pagamento,
+      status: 'Novo',
+      vendaConfirmada: false,
+      data: new Date().toLocaleString('pt-BR')
+    }
+  );
+
+  alert('Pedido cadastrado!');
+
+  carregar();
+}
+
+function renderPedidos(){
+
+  const lista =
+  document.getElementById('listaPedidos');
+
+  if(!lista) return;
+
+  const pedidosOrdenados = [...pedidos].reverse();
+
+  if(pedidosOrdenados.length === 0){
+    lista.innerHTML = `
+    <div class="venda-vazio">
+      Nenhum pedido recebido ainda.
+    </div>`;
+    return;
+  }
+
+  lista.innerHTML = '';
+
+  pedidosOrdenados.forEach(pedido=>{
+
+    const valor = Number(pedido.valor || 0);
+
+    lista.innerHTML += `
+    <div class="pedido-card">
+      <b>${pedido.cliente || 'Cliente não informado'}</b>
+      <p><strong>Produto:</strong> ${pedido.produtoNome || '-'}</p>
+      <p><strong>Tamanho:</strong> ${pedido.tamanho || '-'}</p>
+      <p><strong>Valor:</strong> ${formatarMoeda(valor)}</p>
+      <p><strong>Pagamento:</strong> ${pedido.pagamento || 'Não informado'}</p>
+      <p><strong>WhatsApp:</strong> ${pedido.telefone || '-'}</p>
+      <p><strong>Data:</strong> ${pedido.data || '-'}</p>
+      <span class="status-pedido">${pedido.status || 'Novo'}</span>
+
+      <div class="pedido-botoes">
+        <button class="btn-confirmar" onclick="confirmarPedidoVenda('${pedido.id}')">
+          Confirmar venda
+        </button>
+
+        <button class="btn-status" onclick="alterarStatusPedido('${pedido.id}')">
+          Status
+        </button>
+
+        <button class="btn-cancelar" onclick="cancelarPedido('${pedido.id}')">
+          Cancelar
+        </button>
+
+        <button class="btn-excluir-pedido" onclick="excluirPedido('${pedido.id}')">
+          Excluir
+        </button>
+      </div>
+    </div>`;
+
+  });
+}
+
+window.alterarStatusPedido = async function(id){
+
+  const pedido = pedidos.find(p=>p.id === id);
+
+  if(!pedido) return;
+
+  const opcao = prompt(
+`Escolha o status:
+
+1 - Novo
+2 - Em separação
+3 - Aguardando pagamento
+4 - Pago
+5 - Entregue
+6 - Cancelado`,
+  pedido.status || 'Novo'
+  );
+
+  let status = pedido.status || 'Novo';
+
+  if(opcao === '1') status = 'Novo';
+  if(opcao === '2') status = 'Em separação';
+  if(opcao === '3') status = 'Aguardando pagamento';
+  if(opcao === '4') status = 'Pago';
+  if(opcao === '5') status = 'Entregue';
+  if(opcao === '6') status = 'Cancelado';
+
+  await updateDoc(
+    doc(db,'pedidos',id),
+    { status }
+  );
+
+  carregar();
+}
+
+window.cancelarPedido = async function(id){
+
+  if(!confirm('Cancelar esse pedido?')) return;
+
+  await updateDoc(
+    doc(db,'pedidos',id),
+    { status:'Cancelado' }
+  );
+
+  carregar();
+}
+
+window.excluirPedido = async function(id){
+
+  if(!confirm('Excluir esse pedido?')) return;
+
+  await deleteDoc(doc(db,'pedidos',id));
+
+  carregar();
+}
+
+window.confirmarPedidoVenda = async function(id){
+
+  const pedido = pedidos.find(p=>p.id === id);
+
+  if(!pedido) return;
+
+  if(pedido.vendaConfirmada){
+    alert('Essa venda já foi confirmada.');
+    return;
+  }
+
+  const produto = produtos.find(p=>p.id === pedido.produtoId);
+
+  if(!produto){
+    alert('Produto não encontrado.');
+    return;
+  }
+
+  const tamanho = String(pedido.tamanho || '').trim().toUpperCase();
+
+  if(!produto.tamanhos || !produto.tamanhos[tamanho]){
+    alert('Tamanho não encontrado nesse produto.');
+    return;
+  }
+
+  const t = produto.tamanhos[tamanho];
+
+  if(Number(t.vendido || 0) >= Number(t.total || 0)){
+    alert('Sem estoque disponível para confirmar essa venda.');
+    return;
+  }
+
+  const valorVenda = Number(pedido.valor || produto.valor || 0);
+  const custoVenda = Number(pedido.custo || produto.custo || 0);
+  const lucroVenda = valorVenda - custoVenda;
+
+  const confirmar = confirm(
+`Confirmar venda do pedido?
+
+Cliente: ${pedido.cliente || '-'}
+Produto: ${produto.nome}
+Tamanho: ${tamanho}
+Valor: ${formatarMoeda(valorVenda)}
+Lucro: ${formatarMoeda(lucroVenda)}`
+  );
+
+  if(!confirmar) return;
+
+  t.vendido = Number(t.vendido || 0) + 1;
+
+  if(!produto.vendidos){
+    produto.vendidos = [];
+  }
+
+  produto.vendidos.push({
+    data: new Date().toLocaleString('pt-BR'),
+    tamanho,
+    valor: valorVenda,
+    custo: custoVenda,
+    lucro: lucroVenda,
+    pagamento: pedido.pagamento || 'Não informado',
+    cliente: pedido.cliente || '',
+    pedidoId: pedido.id,
+    origem: 'Pedido'
+  });
+
+  produto.totalVendido =
+  Number(produto.totalVendido || 0) + valorVenda;
+
+  produto.lucro =
+  Number(produto.lucro || 0) + lucroVenda;
+
+  await updateDoc(
+    doc(db,'produtos',produto.id),
+    {
+      tamanhos: produto.tamanhos,
+      vendidos: produto.vendidos,
+      totalVendido: produto.totalVendido,
+      lucro: produto.lucro
+    }
+  );
+
+  await updateDoc(
+    doc(db,'pedidos',id),
+    {
+      status:'Pago',
+      vendaConfirmada:true,
+      confirmadoEm:new Date().toLocaleString('pt-BR')
+    }
+  );
+
+  alert('Venda confirmada e estoque baixado!');
+
+  carregar();
+}
+
 function renderHistoricoVendas(){
 
   const lista =
@@ -1108,6 +1561,7 @@ function render(){
 
 renderResumoFinanceiro();
 renderHistoricoVendas();
+renderPedidos();
 
 const lista =
 document.getElementById('listaProdutos');
